@@ -21,16 +21,6 @@ final class AuthErrorState extends AuthState {
   @override
   List<Object?> get props => [message, code];
 }
-
-final class AuthForgotPasswordSuccessState extends AuthState {
-  final String message;
-
-  const AuthForgotPasswordSuccessState(this.message);
-
-  @override
-  List<Object> get props => [message];
-}
-
 final class AuthResetPasswordSuccessState extends AuthState {
   final String message;
 
@@ -40,14 +30,6 @@ final class AuthResetPasswordSuccessState extends AuthState {
   List<Object> get props => [message];
 }
 
-final class AuthChangePasswordSuccessState extends AuthState {
-  final String message;
-
-  const AuthChangePasswordSuccessState(this.message);
-
-  @override
-  List<Object> get props => [message];
-}
 
 final class AuthLoadingState extends AuthState {
   final bool isLoading;
@@ -58,13 +40,29 @@ final class AuthLoadingState extends AuthState {
   List<Object> get props => [isLoading];
 }
 
-final class AuthForgotPasswordLoadingState extends AuthState {
+final class AuthLoginLoadingState extends AuthState {
   final bool isLoading;
 
-  const AuthForgotPasswordLoadingState(this.isLoading);
+  const AuthLoginLoadingState(this.isLoading);
+
+  @override
+  List<Object?> get props => [isLoading];
+}
+
+final class AuthLoginLoadedState extends AuthState {
+
+}
+
+final class AuthSignUpLoadingState extends AuthState {
+  final bool isLoading;
+
+  const AuthSignUpLoadingState(this.isLoading);
 
   @override
   List<Object> get props => [isLoading];
+}
+
+final class AuthSignUpLoadedState extends AuthState {
 }
 
 final class AuthResetPasswordLoadingState extends AuthState {
@@ -76,47 +74,4 @@ final class AuthResetPasswordLoadingState extends AuthState {
   List<Object> get props => [isLoading];
 }
 
-final class AuthChangePasswordLoadingState extends AuthState {
-  final bool isLoading;
-
-  const AuthChangePasswordLoadingState(this.isLoading);
-
-  @override
-  List<Object> get props => [isLoading];
-}
-
-final class LoginLogsLoadingState extends AuthState {
-  final bool isLoading;
-
-  const LoginLogsLoadingState(this.isLoading);
-
-  @override
-  List<Object> get props => [isLoading];
-}
-
-final class AuthLoggedInStatusState extends AuthState {
-  final bool isLoggedIn;
-
-  const AuthLoggedInStatusState(this.isLoggedIn);
-
-  @override
-  List<Object> get props => [isLoggedIn];
-}
-
-final class LoginLogsLoadedState extends AuthState {
-  final List<LoginLogDetails>? loginLogsDetailsList;
-
-  const LoginLogsLoadedState(this.loginLogsDetailsList);
-
-  @override
-  List<Object?> get props => [loginLogsDetailsList];
-}
-
-final class LoginLogsLoadingMoreState extends AuthState {
-  final bool isLoadingMore;
-
-  const LoginLogsLoadingMoreState(this.isLoadingMore);
-
-  @override
-  List<Object> get props => [isLoadingMore];
-}
+final class AuthResetPasswordLoadedState extends AuthState {  }

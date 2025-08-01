@@ -1,6 +1,8 @@
 
 
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'src/app/app.dart';
 
 // TODO: Change this to true when building for production
@@ -11,7 +13,11 @@ void main() async {
 
   await DependencyInjection.initialize();
   await StorageServices.initializeHive();
-
+  
+await Supabase.initialize(
+    url: AppConstants.supabaseUrl,
+    anonKey: AppConstants.supabaseAnonKey,
+  );
 
   
   runApp(

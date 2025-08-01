@@ -21,24 +21,16 @@ class _LoginActivityScreenState extends State<LoginActivityScreen> {
     authBloc = BlocProvider.of<AuthBloc>(context);
     authBloc.loginLogDetails = [];
     authBloc.lastLoaded = 0;
-    fetchLoginLogsData(false);
+
   }
 
-  Future fetchLoginLogsData(bool isMore) async {
-    authBloc.add(FetchLoginLogsDataEvent(isMore));
-  }
+
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is LoginLogsLoadingState) isLoading = state.isLoading;
-
-        if (state is LoginLogsLoadingMoreState) isLoadingMore = state.isLoadingMore;
-
-        if (state is LoginLogsLoadedState) {
-          loginLogsDetailsList = state.loginLogsDetailsList ?? [];
-        }
+       
       },
       builder: (context, state) {
         return Scaffold(
@@ -46,7 +38,7 @@ class _LoginActivityScreenState extends State<LoginActivityScreen> {
             title: Text(AppTrKeys.loginActivity.tr(context)),
           ),
           body: CommonRefreshIndicator(
-            onRefresh: () async => fetchLoginLogsData(false),
+            onRefresh: () async {},
             child: Visibility(
               visible: isLoading,
               child: ListViewShimmer(),
@@ -61,7 +53,7 @@ class _LoginActivityScreenState extends State<LoginActivityScreen> {
                       return CommonOutlinedButton(
                         isLoading: isLoadingMore,
                         label: AppTrKeys.loadMore.tr(context),
-                        onPressed: () => fetchLoginLogsData(true),
+                        onPressed: () {},
                       );
                     } else {
                       final loginLogDetails = loginLogsDetailsList[index];

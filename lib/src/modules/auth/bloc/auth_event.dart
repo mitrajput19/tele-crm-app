@@ -8,70 +8,37 @@ sealed class AuthEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class AuthLoggedInStatusEvent extends AuthEvent {}
 
-final class AuthLogoutEvent extends AuthEvent {}
 
 final class AuthLoginEvent extends AuthEvent {
   final String email;
   final String password;
 
-  AuthLoginEvent(this.email, this.password);
+  AuthLoginEvent({required this.email, required this.password});
 
   @override
   List<Object?> get props => [email, password];
 }
 
-final class AuthForgotPasswordEvent extends AuthEvent {
-  final Map<String, dynamic> data;
+final class AuthSignUpEvent extends AuthEvent {
+  final String name;
+  final String email;
+  final String password;
 
-  AuthForgotPasswordEvent(this.data);
+  AuthSignUpEvent(this.name, this.email, this.password);
 
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [name, email, password];
 }
+
 
 final class AuthResetPasswordEvent extends AuthEvent {
-  final Map<String, dynamic> data;
+  final String email;
 
-  AuthResetPasswordEvent(this.data);
-
-  @override
-  List<Object?> get props => [data];
-}
-
-final class AuthChangePasswordEvent extends AuthEvent {
-  final Map<String, dynamic> data;
-
-  AuthChangePasswordEvent(this.data);
+  AuthResetPasswordEvent(this.email);
 
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [email];
 }
 
-final class AuthTwoFactorOtpEvent extends AuthEvent {
-  final TwoFactorAuthRequest data;
-
-  AuthTwoFactorOtpEvent(this.data);
-
-  @override
-  List<Object?> get props => [data];
-}
-
-final class SendLocationDataEvent extends AuthEvent {
-  final Map<String, dynamic> data;
-
-  SendLocationDataEvent(this.data);
-
-  @override
-  List<Object?> get props => [data];
-}
-
-final class FetchLoginLogsDataEvent extends AuthEvent {
-  final bool isMore;
-
-  FetchLoginLogsDataEvent(this.isMore);
-
-  @override
-  List<Object?> get props => [isMore];
-}
+final class AuthLogoutEvent extends AuthEvent {}

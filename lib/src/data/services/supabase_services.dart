@@ -16,6 +16,7 @@ class SupabaseService {
         email: email,
         password: password,
       );
+      log(jsonEncode(response.user));
       return response.user;
     } catch (e) {
       throw Exception('Sign in failed: $e');
