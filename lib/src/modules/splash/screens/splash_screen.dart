@@ -33,7 +33,11 @@ class _SplashScreenState extends State<SplashScreen> {
     await getDeviceInfo();
     await getAppVersionDetails();
     await Future.delayed(const Duration(seconds: 3), () {
-      context.pushReplacement(AppRoutes.login);
+      if(getIt<SupabaseService>().currentUser != null) {
+        context.pushReplacement(AppRoutes.attendance);
+      } else {
+        context.pushReplacement(AppRoutes.login);
+      }
     });
     
   }

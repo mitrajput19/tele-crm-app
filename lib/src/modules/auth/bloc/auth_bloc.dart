@@ -70,7 +70,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final response = await supabaseService.signUp(
         event.email, 
         event.password,
-        data: {'name': event.name}
+        metadata: {'name': event.name}
       );
       
       if (response != null) {

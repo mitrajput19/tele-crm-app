@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../app/app.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -21,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<User?> signUp(String email, String password, {Map<String, dynamic>? data}) async {
     try {
-      return await supabaseService.signUp(email, password, data: data);
+      return await supabaseService.signUp(email, password, metadata: data);
     } catch (e) {
       throw e;
     }

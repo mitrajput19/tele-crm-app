@@ -77,6 +77,16 @@ class SupabaseService {
     }
   }
 
+  Future<void> resetPassword(String email) async {
+    try {
+      await _client.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      throw Exception('Password reset failed: ${e.message}');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
   Future<Profile> updateProfile(String id, Map<String, dynamic> updates) async {
     try {
       final response = await _client
@@ -90,6 +100,8 @@ class SupabaseService {
       throw Exception('Failed to update profile: $e');
     }
   }
+
+
 
   Future<List<Profile>> getProfiles({String? managerId, String? role}) async {
     try {
@@ -379,61 +391,3 @@ class SupabaseService {
   }
   
   }
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-class SupabaseService {
-  final SupabaseClient _client = Supabase.instance.client;
-
-  Future<User?> signIn(String email, String password) async {
-    try {
-      final response = await _client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      return response.user;
-    } on AuthException catch (e) {
-      throw Exception('Authentication failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  Future<User?> signUp(String email, String password, {Map<String, dynamic>? data}) async {
-    try {
-      final response = await _client.auth.signUp(
-        email: email,
-        password: password,
-        data: data,
-      );
-      return response.user;
-    } on AuthException catch (e) {
-      throw Exception('Sign up failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  Future<void> signOut() async {
-    try {
-      await _client.auth.signOut();
-    } on AuthException catch (e) {
-      throw Exception('Sign out failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  Future<void> resetPassword(String email) async {
-    try {
-      await _client.auth.resetPasswordForEmail(email);
-    } on AuthException catch (e) {
-      throw Exception('Password reset failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  User? get currentUser => _client.auth.currentUser;
-
-  Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;
-}

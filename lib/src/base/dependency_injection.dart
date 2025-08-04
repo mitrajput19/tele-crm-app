@@ -22,12 +22,13 @@ class DependencyInjection {
     getIt.registerLazySingleton<AuthApiServices>(
       () => AuthApiServices(services: getIt<NetworkServices>()),
     );
-    getIt.registerLazySingleton<AuthRepository>(
-      () => AuthRepositoryImpl(apis: getIt<AuthApiServices>()),
-    );
     getIt.registerLazySingleton<SupabaseService>(
       () => SupabaseService(),
     );
+    getIt.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(apis: getIt<AuthApiServices>(), supabaseService: getIt<SupabaseService>()),
+    );
+    
     getIt.registerFactory<AuthBloc>(
       () => AuthBloc(supabaseService: getIt<SupabaseService>()),
     );
