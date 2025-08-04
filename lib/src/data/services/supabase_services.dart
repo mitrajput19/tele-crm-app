@@ -1,9 +1,13 @@
 import '../../app/app.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../domain/entities/call_request.dart';
+import '../../domain/entities/call_log.dart';
+import '../../domain/entities/dashboard_stats.dart';
+import '../../domain/entities/demo_model.dart';
 
 class SupabaseService {
   static final SupabaseClient _client = Supabase.instance.client;
-  
+
   // Singleton pattern
   static final SupabaseService _instance = SupabaseService._internal();
   factory SupabaseService() => _instance;
@@ -94,14 +98,14 @@ class SupabaseService {
   Future<List<Profile>> getProfiles({String? managerId, String? role}) async {
     try {
       var query = _client.from('profiles').select();
-      
+
       if (managerId != null) {
         query = query.eq('manager_id', managerId);
       }
       if (role != null) {
         query = query.eq('role', role);
       }
-      
+
       final response = await query;
       return response.map<Profile>((json) => Profile.fromJson(json)).toList();
     } catch (e) {
@@ -153,7 +157,7 @@ class SupabaseService {
   }) async {
     try {
       final punchOutTime = DateTime.now();
-      
+
       // Get the attendance record to calculate total hours
       final attendance = await getAttendanceById(attendanceId);
       final totalHours = punchOutTime.difference(attendance.punchIn).inMinutes / 60;
@@ -200,7 +204,7 @@ class SupabaseService {
   }) async {
     try {
       var query = _client.from('attendance').select();
-      
+
       if (profileId != null) {
         query = query.eq('profile_id', profileId);
       }
@@ -210,7 +214,7 @@ class SupabaseService {
       if (endDate != null) {
         query = query.lte('date', endDate.toIso8601String().split('T')[0]);
       }
-      
+
       final response = await query.order('date', ascending: false);
       return response.map<Attendance>((json) => Attendance.fromJson(json)).toList();
     } catch (e) {
@@ -231,7 +235,7 @@ class SupabaseService {
           .eq('profile_id', targetProfileId)
           .eq('date', today)
           .maybeSingle();
-      
+
       return response != null ? Attendance.fromJson(response) : null;
     } catch (e) {
       throw Exception('Failed to get today attendance: $e');
@@ -308,7 +312,7 @@ class SupabaseService {
   }) async {
     try {
       var query = _client.from('activities').select();
-      
+
       if (profileId != null) {
         query = query.eq('profile_id', profileId);
       }
@@ -321,7 +325,7 @@ class SupabaseService {
       if (endDate != null) {
         query = query.lte('start_time', endDate.toIso8601String());
       }
-      
+
       final response = await query.order('start_time', ascending: false);
       return response.map<Activity>((json) => Activity.fromJson(json)).toList();
     } catch (e) {
@@ -377,8 +381,243 @@ class SupabaseService {
       throw Exception('Failed to get contact: $e');
     }
   }
-  
+
+  // TeleCRM Dashboard Methods
+  Future<DashboardStats> getDashboardStats() async {
+    try {
+      final response = await _client.rpc('get_dashboard_stats');
+      return DashboardStats.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to fetch dashboard stats: $e');
+    }
   }
+
+  // Call Request Methods
+  Future<List<CallRequest>> getCallRequests({
+    String? status,
+    String? priority,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      var query = _client.from('call_requests').select();
+
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+      if (priority != null) {
+        query = query.eq('priority', priority);
+      }
+
+      query = query.order('requested_at', ascending: false);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      if (offset != null) {
+        query = query.range(offset, offset + (limit ?? 10) - 1);
+      }
+
+      final response = await query;
+      return (response as List)
+          .map((json) => CallRequest.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch call requests: $e');
+    }
+  }
+
+  Future<CallRequest> createCallRequest(CallRequest callRequest) async {
+    try {
+      final response = await _client
+          .from('call_requests')
+          .insert(callRequest.toJson())
+          .select()
+          .single();
+      return CallRequest.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to create call request: $e');
+    }
+  }
+
+  Future<CallRequest> updateCallRequestStatus(String id, String status) async {
+    try {
+      final response = await _client
+          .from('call_requests')
+          .update({'status': status, 'updated_at': DateTime.now().toIso8601String()})
+          .eq('id', id)
+          .select()
+          .single();
+      return CallRequest.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to update call request: $e');
+    }
+  }
+
+  Future<void> assignCallRequest(String id, String agentId) async {
+    try {
+      await _client
+          .from('call_requests')
+          .update({'assigned_to': agentId, 'status': 'assigned'})
+          .eq('id', id);
+    } catch (e) {
+      throw Exception('Failed to assign call request: $e');
+    }
+  }
+
+  // Call Log Methods
+  Future<List<CallLog>> getCallLogs({
+    String? agentId,
+    String? status,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      var query = _client.from('call_logs').select();
+
+      if (agentId != null) {
+        query = query.eq('agent_id', agentId);
+      }
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+      if (startDate != null) {
+        query = query.gte('start_time', startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.lte('start_time', endDate.toIso8601String());
+      }
+
+      query = query.order('start_time', ascending: false);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      if (offset != null) {
+        query = query.range(offset, offset + (limit ?? 10) - 1);
+      }
+
+      final response = await query;
+      return (response as List)
+          .map((json) => CallLog.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch call logs: $e');
+    }
+  }
+
+  Future<CallLog> createCallLog(CallLog callLog) async {
+    try {
+      final response = await _client
+          .from('call_logs')
+          .insert(callLog.toJson())
+          .select()
+          .single();
+      return CallLog.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to create call log: $e');
+    }
+  }
+
+  Future<CallLog> updateCallLog(String id, Map<String, dynamic> updates) async {
+    try {
+      final response = await _client
+          .from('call_logs')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+      return CallLog.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to update call log: $e');
+    }
+  }
+
+  // Real-time subscriptions
+  RealtimeChannel subscribeToCallRequests({
+    required void Function(Map<String, dynamic>) onInsert,
+    required void Function(Map<String, dynamic>) onUpdate,
+    required void Function(Map<String, dynamic>) onDelete,
+  }) {
+    return _client
+        .channel('call_requests_channel')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'call_requests',
+          callback: (payload) => onInsert(payload.newRecord),
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'call_requests',
+          callback: (payload) => onUpdate(payload.newRecord),
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.delete,
+          schema: 'public',
+          table: 'call_requests',
+          callback: (payload) => onDelete(payload.oldRecord),
+        )
+        .subscribe();
+  }
+
+  // Lead/Demo integration
+  Future<List<Demo>> getLeadsForCalling({
+    String? status,
+    String? assignedTo,
+    int? limit,
+  }) async {
+    try {
+      var query = _client.from('demos').select();
+
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+      if (assignedTo != null) {
+        query = query.eq('assigned_to', assignedTo);
+      }
+
+      query = query.order('demo_date', ascending: true);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+
+      final response = await query;
+      return (response as List)
+          .map((json) => Demo.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch leads: $e');
+    }
+  }
+
+  Future<Demo> updateLeadStatus(String id, String status, {
+    Map<String, dynamic>? additionalData,
+  }) async {
+    try {
+      final updateData = {
+        'status': status,
+        'updated_at': DateTime.now().toIso8601String(),
+        ...?additionalData,
+      };
+
+      final response = await _client
+          .from('demos')
+          .update(updateData)
+          .eq('id', id)
+          .select()
+          .single();
+      return Demo.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to update lead status: $e');
+    }
+  }
+
+}
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
