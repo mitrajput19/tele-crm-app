@@ -2,182 +2,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../app/app.dart';
 import '../../../data/services/supabase_services.dart';
 import '../../../domain/entities/call_request.dart';
 import '../../../domain/entities/call_log.dart';
 import '../../../domain/entities/dashboard_stats.dart';
-import '../../../domain/entities/demo_model.dart';
 
-// Events
-abstract class DashboardEvent extends Equatable {
-  const DashboardEvent();
+part 'dashboard_event.dart';
+part 'dashboard_state.dart';
 
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadDashboard extends DashboardEvent {}
-
-class RefreshDashboard extends DashboardEvent {}
-
-class LoadCallRequests extends DashboardEvent {
-  final String? status;
-  final String? priority;
-
-  const LoadCallRequests({this.status, this.priority});
-
-  @override
-  List<Object?> get props => [status, priority];
-}
-
-class LoadCallLogs extends DashboardEvent {
-  final String? agentId;
-  final DateTime? startDate;
-  final DateTime? endDate;
-
-  const LoadCallLogs({this.agentId, this.startDate, this.endDate});
-
-  @override
-  List<Object?> get props => [agentId, startDate, endDate];
-}
-
-class LoadLeadsForCalling extends DashboardEvent {
-  final String? status;
-  final String? assignedTo;
-
-  const LoadLeadsForCalling({this.status, this.assignedTo});
-
-  @override
-  List<Object?> get props => [status, assignedTo];
-}
-
-class UpdateCallRequestStatus extends DashboardEvent {
-  final String requestId;
-  final String status;
-
-  const UpdateCallRequestStatus({required this.requestId, required this.status});
-
-  @override
-  List<Object?> get props => [requestId, status];
-}
-
-class CreateCallLog extends DashboardEvent {
-  final CallLog callLog;
-
-  const CreateCallLog({required this.callLog});
-
-  @override
-  List<Object?> get props => [callLog];
-}
-
-class MakeCall extends DashboardEvent {
-  final CallRequest callRequest;
-
-  const MakeCall({required this.callRequest});
-
-  @override
-  List<Object?> get props => [callRequest];
-}
-
-class EndCall extends DashboardEvent {
-  final String callLogId;
-  final String outcome;
-  final String? notes;
-  final DateTime? followUpDate;
-
-  const EndCall({
-    required this.callLogId,
-    required this.outcome,
-    this.notes,
-    this.followUpDate,
-  });
-
-  @override
-  List<Object?> get props => [callLogId, outcome, notes, followUpDate];
-}
-
-// States
-abstract class DashboardState extends Equatable {
-  const DashboardState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class DashboardInitial extends DashboardState {}
-
-class DashboardLoading extends DashboardState {}
-
-class DashboardLoaded extends DashboardState {
-  final DashboardStats stats;
-  final List<CallRequest> callRequests;
-  final List<CallLog> callLogs;
-  final List<Demo> leads;
-
-  const DashboardLoaded({
-    required this.stats,
-    required this.callRequests,
-    required this.callLogs,
-    required this.leads,
-  });
-
-  @override
-  List<Object?> get props => [stats, callRequests, callLogs, leads];
-
-  DashboardLoaded copyWith({
-    DashboardStats? stats,
-    List<CallRequest>? callRequests,
-    List<CallLog>? callLogs,
-    List<Demo>? leads,
-  }) {
-    return DashboardLoaded(
-      stats: stats ?? this.stats,
-      callRequests: callRequests ?? this.callRequests,
-      callLogs: callLogs ?? this.callLogs,
-      leads: leads ?? this.leads,
-    );
-  }
-}
-
-class DashboardError extends DashboardState {
-  final String message;
-
-  const DashboardError({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-class CallInProgress extends DashboardState {
-  final CallRequest callRequest;
-  final CallLog callLog;
-  final DateTime startTime;
-
-  const CallInProgress({
-    required this.callRequest,
-    required this.callLog,
-    required this.startTime,
-  });
-
-  @override
-  List<Object?> get props => [callRequest, callLog, startTime];
-}
-
-class CallCompleted extends DashboardState {
-  final CallLog completedCallLog;
-
-  const CallCompleted({required this.completedCallLog});
-
-  @override
-  List<Object?> get props => [completedCallLog];
-}
 
 // Bloc
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  final SupabaseServices _supabaseServices;
+  final SupabaseService _supabaseServices;
   RealtimeChannel? _callRequestsSubscription;
 
-  DashboardBloc({required SupabaseServices supabaseServices})
+  DashboardBloc({required SupabaseService supabaseServices})
       : _supabaseServices = supabaseServices,
         super(DashboardInitial()) {
     on<LoadDashboard>(_onLoadDashboard);
@@ -360,8 +200,8 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         callType: 'outbound',
         status: 'connecting',
         startTime: DateTime.now(),
-        agentId: 'current_user_id', // TODO: Get from auth
-        agentName: 'Current User', // TODO: Get from auth
+        agentId: 'current_user_id',
+        agentName: 'Current User',
       );
 
       final createdCallLog = await _supabaseServices.createCallLog(callLog);

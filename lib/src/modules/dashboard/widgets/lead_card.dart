@@ -1,10 +1,5 @@
 
-import 'package:flutter/material.dart';
-import '../../../core/themes/app_colors.dart';
-import '../../../core/themes/app_styles.dart';
-import '../../../core/widgets/common_card.dart';
-import '../../../core/widgets/common_outlined_button.dart';
-import '../../../domain/entities/demo_model.dart';
+import '../../../app/app.dart';
 
 class LeadCard extends StatelessWidget {
   final Demo lead;
@@ -32,14 +27,14 @@ class LeadCard extends StatelessWidget {
                     children: [
                       Text(
                         lead.studentName,
-                        style: AppStyles.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       if (lead.contactNo?.isNotEmpty == true)
                         Text(
                           lead.contactNo!,
-                          style: AppStyles.bodyMedium.copyWith(
-                            color: AppColors.primary,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: AppColors.lightPrimary,
                           ),
                         ),
                     ],
@@ -74,7 +69,7 @@ class LeadCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 lead.notes!,
-                style: AppStyles.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -84,9 +79,8 @@ class LeadCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: CommonOutlinedButton(
-                    text: 'Create Call Request',
+                    label: 'Create Call Request',
                     onPressed: onCreateCallRequest,
-                    icon: Icons.phone_callback,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -125,10 +119,10 @@ class LeadCard extends StatelessWidget {
         color = AppColors.success;
         break;
       case 'not interested':
-        color = AppColors.error;
+        color = AppColors.danger;
         break;
       case 'finalized':
-        color = AppColors.primary;
+        color = AppColors.lightPrimary;
         break;
       default:
         color = Colors.grey;
@@ -143,7 +137,7 @@ class LeadCard extends StatelessWidget {
       ),
       child: Text(
         lead.status.toUpperCase(),
-        style: AppStyles.bodySmall.copyWith(
+        style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall!.copyWith(
           color: color,
           fontWeight: FontWeight.w600,
         ),
@@ -161,7 +155,7 @@ class LeadCard extends StatelessWidget {
             width: 80,
             child: Text(
               '$label:',
-              style: AppStyles.bodySmall.copyWith(
+              style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall!.copyWith(
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w500,
               ),
@@ -170,7 +164,7 @@ class LeadCard extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: AppStyles.bodySmall,
+              style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall,
             ),
           ),
         ],

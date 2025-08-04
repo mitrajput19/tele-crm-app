@@ -20,7 +20,7 @@ class AppLogo extends StatelessWidget {
         child: Container(
           child: isGifLoading
               ? Image.asset(
-                  AppImages.appLoading,
+                  Assets.assetsImagesHomeReviseTeleLogo,
                   height: 50,
                   width: 50,
                 )

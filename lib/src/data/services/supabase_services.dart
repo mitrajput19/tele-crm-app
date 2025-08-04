@@ -421,14 +421,14 @@ class SupabaseService {
         query = query.eq('priority', priority);
       }
 
-      query = query.order('requested_at', ascending: false);
+      // query = query.order('requested_at', ascending: false);
 
-      if (limit != null) {
-        query = query.limit(limit);
-      }
-      if (offset != null) {
-        query = query.range(offset, offset + (limit ?? 10) - 1);
-      }
+      // if (limit != null) {
+      //   query = query.limit(limit);
+      // }
+      // if (offset != null) {
+      //   query = query.range(offset, offset + (limit ?? 10) - 1);
+      // }
 
       final response = await query;
       return (response as List)
@@ -502,14 +502,14 @@ class SupabaseService {
         query = query.lte('start_time', endDate.toIso8601String());
       }
 
-      query = query.order('start_time', ascending: false);
+      // query = query.order('start_time', ascending: false);
 
-      if (limit != null) {
-        query = query.limit(limit);
-      }
-      if (offset != null) {
-        query = query.range(offset, offset + (limit ?? 10) - 1);
-      }
+      // if (limit != null) {
+      //   query = query.limit(limit);
+      // }
+      // if (offset != null) {
+      //   query = query.range(offset, offset + (limit ?? 10) - 1);
+      // }
 
       final response = await query;
       return (response as List)
@@ -592,10 +592,10 @@ class SupabaseService {
         query = query.eq('assigned_to', assignedTo);
       }
 
-      query = query.order('demo_date', ascending: true);
+      // query = query.order('demo_date');
 
       if (limit != null) {
-        query = query.limit(limit);
+        // query = query.limit(limit);
       }
 
       final response = await query;
@@ -629,62 +629,4 @@ class SupabaseService {
     }
   }
 
-}
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-class SupabaseService {
-  final SupabaseClient _client = Supabase.instance.client;
-
-  Future<User?> signIn(String email, String password) async {
-    try {
-      final response = await _client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      return response.user;
-    } on AuthException catch (e) {
-      throw Exception('Authentication failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  Future<User?> signUp(String email, String password, {Map<String, dynamic>? data}) async {
-    try {
-      final response = await _client.auth.signUp(
-        email: email,
-        password: password,
-        data: data,
-      );
-      return response.user;
-    } on AuthException catch (e) {
-      throw Exception('Sign up failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  Future<void> signOut() async {
-    try {
-      await _client.auth.signOut();
-    } on AuthException catch (e) {
-      throw Exception('Sign out failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  Future<void> resetPassword(String email) async {
-    try {
-      await _client.auth.resetPasswordForEmail(email);
-    } on AuthException catch (e) {
-      throw Exception('Password reset failed: ${e.message}');
-    } catch (e) {
-      throw Exception('An unexpected error occurred: $e');
-    }
-  }
-
-  User? get currentUser => _client.auth.currentUser;
-
-  Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;
 }

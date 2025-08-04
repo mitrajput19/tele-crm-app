@@ -1,9 +1,5 @@
 
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import '../../../core/themes/app_colors.dart';
-import '../../../core/themes/app_styles.dart';
-import '../../../core/widgets/common_card.dart';
+import '../../../app/app.dart';
 import '../../../domain/entities/dashboard_stats.dart';
 
 class DashboardStatsWidget extends StatelessWidget {
@@ -31,7 +27,7 @@ class DashboardStatsWidget extends StatelessWidget {
               'Total Leads',
               stats.totalLeads.toString(),
               Icons.people,
-              AppColors.primary,
+              AppColors.lightPrimary,
             ),
             _buildKpiCard(
               'Pending Calls',
@@ -89,7 +85,7 @@ class DashboardStatsWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Call Status Breakdown',
-                    style: AppStyles.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -133,7 +129,7 @@ class DashboardStatsWidget extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             statusCount.status,
-                            style: AppStyles.bodySmall,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       );
@@ -162,7 +158,7 @@ class DashboardStatsWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: AppStyles.titleLarge.copyWith(
+              style: Theme.of(navigatorKey.currentContext!).textTheme.titleLarge!.copyWith(
                 color: color,
                 fontWeight: FontWeight.bold,
               ),
@@ -170,7 +166,7 @@ class DashboardStatsWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               title,
-              style: AppStyles.bodySmall,
+              style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),
           ],
@@ -197,14 +193,14 @@ class DashboardStatsWidget extends StatelessWidget {
                 children: [
                   Text(
                     value,
-                    style: AppStyles.titleMedium.copyWith(
+                    style: Theme.of(navigatorKey.currentContext!).textTheme.titleMedium!.copyWith(
                       color: color,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     title,
-                    style: AppStyles.bodySmall,
+                    style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall,
                   ),
                 ],
               ),

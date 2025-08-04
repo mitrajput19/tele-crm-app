@@ -62,7 +62,7 @@ class _CallInProgressWidgetState extends State<CallInProgressWidget>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.lightPrimary,
       body: SafeArea(
         child: Column(
           children: [
@@ -106,27 +106,27 @@ class _CallInProgressWidgetState extends State<CallInProgressWidget>
                       // Customer Info
                       CircleAvatar(
                         radius: 50,
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.lightPrimary.withOpacity(0.1),
                         child: Text(
                           widget.callRequest.customerName.substring(0, 1).toUpperCase(),
                           style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: AppColors.lightPrimary,
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         widget.callRequest.customerName,
-                        style: AppStyles.titleLarge,
+                        style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         widget.callRequest.phoneNumber,
-                        style: AppStyles.bodyLarge.copyWith(
-                          color: AppColors.primary,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: AppColors.lightPrimary,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -199,7 +199,7 @@ class _CallInProgressWidgetState extends State<CallInProgressWidget>
                           _buildCallActionButton(
                             icon: Icons.call_end,
                             label: 'End Call',
-                            color: AppColors.error,
+                            color: AppColors.danger,
                             onPressed: _showEndCallDialog,
                           ),
                         ],
@@ -216,7 +216,7 @@ class _CallInProgressWidgetState extends State<CallInProgressWidget>
                             children: [
                               Text(
                                 'Call Notes',
-                                style: AppStyles.titleSmall,
+                                style: Theme.of(context).textTheme.titleSmall,
                               ),
                               const SizedBox(height: 8),
                               TextField(
@@ -258,7 +258,7 @@ class _CallInProgressWidgetState extends State<CallInProgressWidget>
         const SizedBox(height: 8),
         Text(
           label,
-          style: AppStyles.bodySmall.copyWith(color: color),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: color),
         ),
       ],
     );

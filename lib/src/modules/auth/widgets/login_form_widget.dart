@@ -87,7 +87,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           }
         } else if (state is AuthLoginLoadedState) {
 
-          context.go('/dashboard'); 
+          context.go(AppRoutes.dashboard); 
         } else if (state is AuthSignUpLoadedState) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Account created successfully! Please check your email to verify.')),

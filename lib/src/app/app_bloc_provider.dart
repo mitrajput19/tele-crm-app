@@ -10,5 +10,8 @@ final List<BlocProvider> appProviders = [
   BlocProvider<SnackbarBloc>(
     create: (context) => getIt<SnackbarBloc>(),
   ),
+  BlocProvider<DashboardBloc>(
+    create: (context) => getIt<DashboardBloc>(),
+  ),
   
 ];

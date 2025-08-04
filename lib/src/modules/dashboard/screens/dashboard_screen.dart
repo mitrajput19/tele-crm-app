@@ -1,11 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/themes/app_colors.dart';
-import '../../../core/themes/app_styles.dart';
 import '../../../core/widgets/common_filled_button.dart';
-import '../../../core/widgets/common_card.dart';
 import '../../../core/widgets/common_loader.dart';
 import '../../../core/widgets/common_refresh_indicator.dart';
 import '../bloc/dashboard_bloc.dart';
@@ -43,8 +40,8 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TeleCRM Dashboard'),
-        backgroundColor: AppColors.primary,
+        title: Text('TeleCRM Dashboard',style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.white),),
+        backgroundColor: AppColors.lightPrimary,
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -80,7 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.danger,
               ),
             );
           }
@@ -116,22 +113,22 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Icon(
                     Icons.error_outline,
                     size: 64,
-                    color: AppColors.error,
+                    color: AppColors.danger,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Error loading dashboard',
-                    style: AppStyles.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     state.message,
-                    style: AppStyles.bodyMedium,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   CommonFilledButton(
-                    text: 'Retry',
+                    label: 'Retry',
                     onPressed: () {
                       context.read<DashboardBloc>().add(LoadDashboard());
                     },
@@ -174,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           const SizedBox(height: 24),
           Text(
             'Recent Call Requests',
-            style: AppStyles.titleLarge,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
           if (state.callRequests.isEmpty)
@@ -226,7 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             children: [
               Text(
                 'Call Queue (${pendingRequests.length})',
-                style: AppStyles.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               PopupMenuButton<String>(
                 onSelected: (value) {
@@ -290,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             children: [
               Text(
                 'Call Logs (${state.callLogs.length})',
-                style: AppStyles.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               IconButton(
                 icon: const Icon(Icons.date_range),
@@ -331,7 +328,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             children: [
               Text(
                 'Leads (${state.leads.length})',
-                style: AppStyles.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               PopupMenuButton<String>(
                 onSelected: (value) {

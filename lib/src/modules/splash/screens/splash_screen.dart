@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await getAppVersionDetails();
     await Future.delayed(const Duration(seconds: 3), () {
       if(getIt<SupabaseService>().currentUser != null) {
-        context.pushReplacement(AppRoutes.attendance);
+        context.pushReplacement(AppRoutes.dashboard);
       } else {
         context.pushReplacement(AppRoutes.login);
       }

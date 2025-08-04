@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:tele_crm_app/src/app/app.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/themes/app_colors.dart';
 import '../../../core/themes/app_styles.dart';
@@ -36,13 +37,13 @@ class CallRequestCard extends StatelessWidget {
                     children: [
                       Text(
                         callRequest.customerName,
-                        style: AppStyles.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         callRequest.phoneNumber,
-                        style: AppStyles.bodyMedium.copyWith(
-                          color: AppColors.primary,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.lightPrimary,
                         ),
                       ),
                     ],
@@ -56,7 +57,7 @@ class CallRequestCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 callRequest.notes!,
-                style: AppStyles.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -66,7 +67,7 @@ class CallRequestCard extends StatelessWidget {
               children: [
                 Text(
                   'Requested: ${_formatDateTime(callRequest.requestedAt)}',
-                  style: AppStyles.bodySmall.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: Colors.grey[600],
                   ),
                 ),
@@ -74,8 +75,8 @@ class CallRequestCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Scheduled: ${_formatDateTime(callRequest.scheduledAt!)}',
-                    style: AppStyles.bodySmall.copyWith(
-                      color: AppColors.primary,
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: AppColors.lightPrimary,
                     ),
                   ),
                 ],
@@ -86,12 +87,12 @@ class CallRequestCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: CommonFilledButton(
-                    text: 'Call Now',
+                    label: 'Call Now',
                     onPressed: callRequest.status == 'pending' || 
                               callRequest.status == 'assigned' 
                         ? onMakeCall 
                         : null,
-                    icon: Icons.phone,
+                    icon: const Icon(Icons.phone),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -140,13 +141,13 @@ class CallRequestCard extends StatelessWidget {
         color = AppColors.info;
         break;
       case 'in_progress':
-        color = AppColors.primary;
+        color = AppColors.lightPrimary;
         break;
       case 'completed':
         color = AppColors.success;
         break;
       case 'cancelled':
-        color = AppColors.error;
+        color = AppColors.danger;
         break;
       default:
         color = Colors.grey;
@@ -161,7 +162,7 @@ class CallRequestCard extends StatelessWidget {
       ),
       child: Text(
         callRequest.status.toUpperCase(),
-        style: AppStyles.bodySmall.copyWith(
+        style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall!.copyWith(
           color: color,
           fontWeight: FontWeight.w600,
         ),
@@ -173,7 +174,7 @@ class CallRequestCard extends StatelessWidget {
     Color color;
     switch (callRequest.priority) {
       case 'high':
-        color = AppColors.error;
+        color = AppColors.danger;
         break;
       case 'medium':
         color = AppColors.warning;
@@ -195,7 +196,7 @@ class CallRequestCard extends StatelessWidget {
       ),
       child: Text(
         callRequest.priority.toUpperCase(),
-        style: AppStyles.bodySmall.copyWith(
+        style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall!.copyWith(
           color: color,
           fontWeight: FontWeight.w600,
         ),

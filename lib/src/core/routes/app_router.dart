@@ -62,6 +62,10 @@ class AppRouter {
         path: AppRoutes.loginActivity,
         pageBuilder: defaultPageBuilder(const LoginActivityScreen()),
       ),
+      GoRoute(
+        path: AppRoutes.dashboard,
+        pageBuilder: defaultPageBuilder(const DashboardScreen()),
+      ),
       
       GoRoute(
         path: AppRoutes.signature,

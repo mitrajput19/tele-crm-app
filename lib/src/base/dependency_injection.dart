@@ -28,6 +28,10 @@ class DependencyInjection {
     getIt.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(apis: getIt<AuthApiServices>(), supabaseService: getIt<SupabaseService>()),
     );
+
+    getIt.registerLazySingleton<DashboardBloc>(
+      () => DashboardBloc(supabaseServices: getIt<SupabaseService>()),
+    );
     
     getIt.registerFactory<AuthBloc>(
       () => AuthBloc(supabaseService: getIt<SupabaseService>()),

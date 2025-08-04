@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:tele_crm_app/src/app/app.dart';
 import '../../../core/themes/app_colors.dart';
 import '../../../core/themes/app_styles.dart';
 import '../../../core/widgets/common_card.dart';
@@ -29,13 +30,13 @@ class CallLogCard extends StatelessWidget {
                     children: [
                       Text(
                         callLog.customerName,
-                        style: AppStyles.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         callLog.phoneNumber,
-                        style: AppStyles.bodyMedium.copyWith(
-                          color: AppColors.primary,
+                        style: Theme.of(navigatorKey.currentContext!).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.lightPrimary,
                         ),
                       ),
                     ],
@@ -57,7 +58,7 @@ class CallLogCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   _formatDateTime(callLog.startTime),
-                  style: AppStyles.bodySmall.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: Colors.grey[600],
                   ),
                 ),
@@ -71,7 +72,7 @@ class CallLogCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     _formatDuration(callLog.duration!),
-                    style: AppStyles.bodySmall.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Colors.grey[600],
                     ),
                   ),
@@ -90,7 +91,7 @@ class CallLogCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     'Outcome: ${callLog.outcome}',
-                    style: AppStyles.bodySmall.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: _getOutcomeColor(callLog.outcome!),
                       fontWeight: FontWeight.w600,
                     ),
@@ -102,7 +103,7 @@ class CallLogCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 callLog.notes!,
-                style: AppStyles.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -127,7 +128,7 @@ class CallLogCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'Follow-up: ${_formatDate(callLog.followUpDate!)}',
-                      style: AppStyles.bodySmall.copyWith(
+                      style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall!.copyWith(
                         color: AppColors.warning,
                         fontWeight: FontWeight.w600,
                       ),
@@ -155,7 +156,7 @@ class CallLogCard extends StatelessWidget {
         color = AppColors.info;
         break;
       case 'failed':
-        color = AppColors.error;
+        color = AppColors.danger;
         break;
       default:
         color = Colors.grey;
@@ -170,7 +171,7 @@ class CallLogCard extends StatelessWidget {
       ),
       child: Text(
         callLog.status.replaceAll('_', ' ').toUpperCase(),
-        style: AppStyles.bodySmall.copyWith(
+        style: Theme.of(navigatorKey.currentContext!).textTheme.bodySmall!.copyWith(
           color: color,
           fontWeight: FontWeight.w600,
         ),
@@ -191,11 +192,11 @@ class CallLogCard extends StatelessWidget {
       case 'interested':
         return AppColors.success;
       case 'not_interested':
-        return AppColors.error;
+        return AppColors.danger;
       case 'callback':
         return AppColors.warning;
       case 'converted':
-        return AppColors.primary;
+        return AppColors.lightPrimary;
       default:
         return Colors.grey;
     }
