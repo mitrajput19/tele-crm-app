@@ -1,4 +1,6 @@
 
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
 import '../../../app/app.dart';
 import '../../../domain/entities/dashboard_stats.dart';
 
@@ -15,11 +17,8 @@ class DashboardStatsWidget extends StatelessWidget {
     return Column(
       children: [
         // KPI Cards
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+        StaggeredGrid.count(
           crossAxisCount: 2,
-          childAspectRatio: 1.5,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           children: [
