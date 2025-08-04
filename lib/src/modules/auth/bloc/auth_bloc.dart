@@ -12,15 +12,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required this.supabaseService}) : super(AuthInitialState()) {
     on<AuthLoginEvent>(_loginEvent);
     on<AuthLogoutEvent>(_logoutEvent);
-    
+    on<AuthSignUpEvent>(_signUpEvent);
+    on<AuthResetPasswordEvent>(_resetPasswordEvent);
   }
-
-
-
 
   List<LoginLogDetails>? loginLogDetails;
   int lastLoaded = 0;
-
   User? user;
 
   FutureOr<void> _loginEvent(
@@ -29,22 +26,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoginLoadingState(true));
 
-    try{
+    try {
       final response = await supabaseService.signIn(event.email, event.password);
-      if(response != null){
+      if (response != null) {
         user = response;
         emit(AuthLoginLoadedState());
-      }else{
-        // emit(AuthErrorState(message: response.error?.message ?? ''));
+      } else {
+        emit(AuthErrorState(message: 'Login failed. Please check your credentials.'));
       }
-
-    }catch(e){
+    } catch (e) {
       log(e.toString());
+      emit(AuthErrorState(message: e.toString()));
     }
 
     emit(AuthLoginLoadingState(false));
   }
-
 
   FutureOr<void> _logoutEvent(
     AuthLogoutEvent event,
@@ -52,6 +48,58 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoadingState(true));
     
+    try {
+      await supabaseService.signOut();
+      user = null;
+      emit(AuthLogoutState());
+    } catch (e) {
+      log(e.toString());
+      emit(AuthErrorState(message: 'Logout failed: ${e.toString()}'));
+    }
+    
+    emit(AuthLoadingState(false));
   }
 
+  FutureOr<void> _signUpEvent(
+    AuthSignUpEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthSignUpLoadingState(true));
+
+    try {
+      final response = await supabaseService.signUp(
+        event.email, 
+        event.password,
+        data: {'name': event.name}
+      );
+      
+      if (response != null) {
+        emit(AuthSignUpLoadedState());
+      } else {
+        emit(AuthErrorState(message: 'Sign up failed. Please try again.'));
+      }
+    } catch (e) {
+      log(e.toString());
+      emit(AuthErrorState(message: e.toString()));
+    }
+
+    emit(AuthSignUpLoadingState(false));
   }
+
+  FutureOr<void> _resetPasswordEvent(
+    AuthResetPasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthResetPasswordLoadingState(true));
+
+    try {
+      await supabaseService.resetPassword(event.email);
+      emit(AuthResetPasswordSuccessState('Password reset email sent successfully'));
+    } catch (e) {
+      log(e.toString());
+      emit(AuthErrorState(message: e.toString()));
+    }
+
+    emit(AuthResetPasswordLoadingState(false));
+  }
+}

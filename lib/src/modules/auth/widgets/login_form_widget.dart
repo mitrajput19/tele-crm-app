@@ -23,6 +23,20 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     authBloc = BlocProvider.of<AuthBloc>(context);
   }
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  void _clearControllers() {
+    _emailController.clear();
+    _passwordController.clear();
+    _nameController.clear();
+  }
+
   void signIn() {
     if (_signInKey.currentState!.validate()) {
       authBloc.add(AuthLoginEvent(
@@ -34,13 +48,17 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   void signUp() {
     if (_signUpKey.currentState!.validate()) {
-      print('Sign Up');
+      authBloc.add(AuthSignUpEvent(
+        _nameController.text,
+        _emailController.text,
+        _passwordController.text,
+      ));
     }
   }
 
   void reset() {
     if (_resetKey.currentState!.validate()) {
-      print('Reset');
+      authBloc.add(AuthResetPasswordEvent(_emailController.text));
     }
   }
 
@@ -67,6 +85,24 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           }else{
             context.hideLoader();
           }
+        } else if (state is AuthLoginLoadedState) {
+          // Navigate to main app or dashboard
+          context.go('/dashboard'); // Adjust route as needed
+        } else if (state is AuthSignUpLoadedState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Account created successfully! Please check your email to verify.')),
+          );
+        } else if (state is AuthResetPasswordSuccessState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        } else if (state is AuthErrorState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message ?? 'An error occurred'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       builder: (context, state) {
@@ -93,6 +129,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   height: 470,
                   child: CommonTabBar(
                     tabsTitle: ['Sign In', 'Sign Up', 'Reset'],
+                    onTabChanged: (index) => _clearControllers(),
                     tabs: [
                       Form(
                         key: _signInKey,
