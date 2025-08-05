@@ -93,9 +93,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
       }
       
       final filteredLeads = currentState.leads.where((lead) {
-        return lead.customerName.toLowerCase().contains(event.query.toLowerCase()) ||
-               lead.email.toLowerCase().contains(event.query.toLowerCase()) ||
-               lead.phoneNumber.contains(event.query);
+        return lead.studentName.toLowerCase().contains(event.query.toLowerCase()) ||
+               (lead.contactNo?.contains(event.query) ?? false);
       }).toList();
       
       emit(currentState.copyWith(
@@ -113,9 +112,9 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
       final callRequest = CallRequest(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         leadId: event.lead.id,
-        customerName: event.lead.customerName,
-        phoneNumber: event.lead.phoneNumber,
-        alternatePhone: event.lead.alternatePhone,
+        customerName: event.lead.studentName,
+        phoneNumber: event.lead.contactNo ?? '',
+        alternatePhone: event.lead.alternateContactNo ?? '',
         status: 'pending',
         priority: event.priority ?? 'medium',
         requestedAt: DateTime.now(),
@@ -145,7 +144,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
         final currentState = state as LeadsLoaded;
         final updatedLeads = currentState.leads.map((lead) {
           if (lead.id == event.leadId) {
-            return lead.copyWith(status: event.status);
+            return lead.copyWith(status: event.status) as Demo;
           }
           return lead;
         }).toList();
@@ -158,7 +157,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
 
   Future<void> _onAssignLead(AssignLead event, Emitter<LeadsState> emit) async {
     try {
-      await _supabaseService.updateDemo(event.leadId, {
+      await _supabaseService.updateLead(event.leadId, {
         'assigned_to': event.agentId,
       });
       
@@ -166,7 +165,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
         final currentState = state as LeadsLoaded;
         final updatedLeads = currentState.leads.map((lead) {
           if (lead.id == event.leadId) {
-            return lead.copyWith(assignedTo: event.agentId);
+            return lead.copyWith(demoPerformedBy: event.agentId);
           }
           return lead;
         }).toList();
@@ -183,7 +182,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
   ) async {
     try {
       for (final leadId in event.leadIds) {
-        await _supabaseService.updateDemo(leadId, event.updates);
+        await _supabaseService.updateLead(leadId, event.updates);
       }
       
       // Reload leads
