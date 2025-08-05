@@ -1,13 +1,6 @@
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app/app.dart';
-import '../../../core/core.dart';
-import '../../../data/services/supabase_services.dart';
 import '../bloc/leads_bloc.dart';
-import '../widgets/lead_list_item.dart';
-import '../widgets/lead_filter_widget.dart';
-import '../widgets/create_lead_dialog.dart';
 
 class LeadsScreen extends StatelessWidget {
   const LeadsScreen({super.key});
@@ -114,7 +107,7 @@ class _LeadsViewState extends State<LeadsView> {
                   if (leads.isEmpty) {
                     return const NoDataFound(
                       message: 'No leads found',
-                      icon: Icons.people,
+                     
                     );
                   }
                   

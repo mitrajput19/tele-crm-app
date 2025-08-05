@@ -173,7 +173,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: AppColors.lightPrimary,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -240,7 +240,7 @@ class _CallingScreenState extends State<CallingScreen> {
                         icon: _isSpeakerOn ? Icons.volume_up : Icons.volume_down,
                         isActive: _isSpeakerOn,
                         onPressed: _toggleSpeaker,
-                        backgroundColor: _isSpeakerOn ? AppColors.primary : Colors.grey.shade800,
+                        backgroundColor: _isSpeakerOn ? AppColors.lightPrimary : Colors.grey.shade800,
                       ),
                     ],
                   ),

@@ -1,9 +1,6 @@
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
+
 import '../../../app/app.dart';
-import '../../../data/services/supabase_services.dart';
-import '../../../domain/entities/demo_model.dart';
 import '../../../domain/entities/call_request.dart';
 
 part 'leads_event.dart';
@@ -18,7 +15,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
     on<LoadLeads>(_onLoadLeads);
     on<CreateLead>(_onCreateLead);
     on<UpdateLead>(_onUpdateLead);
-    on<DeleteLead>(_onDeleteLead);
+
     on<FilterLeads>(_onFilterLeads);
     on<SearchLeads>(_onSearchLeads);
     on<CreateCallRequestFromLead>(_onCreateCallRequestFromLead);
@@ -39,7 +36,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
 
   Future<void> _onCreateLead(CreateLead event, Emitter<LeadsState> emit) async {
     try {
-      final newLead = await _supabaseService.createDemo(event.lead);
+      final newLead = await _supabaseService.createLead(event.lead);
       if (state is LeadsLoaded) {
         final currentState = state as LeadsLoaded;
         emit(currentState.copyWith(
@@ -53,7 +50,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
 
   Future<void> _onUpdateLead(UpdateLead event, Emitter<LeadsState> emit) async {
     try {
-      final updatedLead = await _supabaseService.updateDemo(event.leadId, event.updates);
+      final updatedLead = await _supabaseService.updateLead(event.leadId, event.updates);
       if (state is LeadsLoaded) {
         final currentState = state as LeadsLoaded;
         final updatedLeads = currentState.leads.map((lead) {
@@ -66,20 +63,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
     }
   }
 
-  Future<void> _onDeleteLead(DeleteLead event, Emitter<LeadsState> emit) async {
-    try {
-      await _supabaseService.deleteDemo(event.leadId);
-      if (state is LeadsLoaded) {
-        final currentState = state as LeadsLoaded;
-        final updatedLeads = currentState.leads
-            .where((lead) => lead.id != event.leadId)
-            .toList();
-        emit(currentState.copyWith(leads: updatedLeads));
-      }
-    } catch (e) {
-      emit(LeadsError(message: e.toString()));
-    }
-  }
+  
 
   Future<void> _onFilterLeads(FilterLeads event, Emitter<LeadsState> emit) async {
     try {
