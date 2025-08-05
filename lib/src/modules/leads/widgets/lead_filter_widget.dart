@@ -72,84 +72,54 @@ class _LeadFilterWidgetState extends State<LeadFilterWidget> {
               ],
             ),
             const SizedBox(height: 20),
-            CommonDropDownField<String>(
+            CommonDropdownField<String?>(
+              getValueText: (value) => value?.replaceAll('_', ' ').toUpperCase() ?? '',
               value: _selectedStatus,
-              items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('All Status'),
-                ),
-                ..._statusOptions.map((status) {
-                  return DropdownMenuItem(
-                    value: status,
-                    child: Text(status.replaceAll('_', ' ').toUpperCase()),
-                  );
-                }),
-              ],
+              items: _statusOptions,
               onChanged: (value) {
                 setState(() {
                   _selectedStatus = value;
                 });
               },
-              labelText: 'Status',
+              label: 'Status',
             ),
             const SizedBox(height: 16),
-            CommonDropDownField<String>(
+            CommonDropdownField<String?>(
+              getValueText: (value) => value?.replaceAll('_', ' ').toUpperCase() ?? '',
               value: _selectedPriority,
-              items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('All Priorities'),
-                ),
-                ..._priorityOptions.map((priority) {
-                  return DropdownMenuItem(
-                    value: priority,
-                    child: Text(priority.toUpperCase()),
-                  );
-                }),
-              ],
+              items: _priorityOptions,
               onChanged: (value) {
                 setState(() {
                   _selectedPriority = value;
                 });
               },
-              labelText: 'Priority',
+              label: 'Priority',
             ),
             const SizedBox(height: 16),
-            CommonDropDownField<String>(
+            CommonDropdownField<String?>(
+              getValueText: (value) => value ?? '',
               value: _selectedAssignedTo,
-              items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('All Assignees'),
-                ),
-                ..._assignedToOptions.map((assignee) {
-                  return DropdownMenuItem(
-                    value: assignee,
-                    child: Text(assignee),
-                  );
-                }),
-              ],
+              items: _assignedToOptions,
               onChanged: (value) {
                 setState(() {
                   _selectedAssignedTo = value;
                 });
               },
-              labelText: 'Assigned To',
+              label: 'Assigned To',
             ),
             const SizedBox(height: 30),
             Row(
               children: [
                 Expanded(
                   child: CommonOutlinedButton(
-                    text: 'Clear Filters',
+                    label: 'Clear Filters',
                     onPressed: _clearFilters,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: CommonFilledButton(
-                    text: 'Apply Filters',
+                    label: 'Apply Filters',
                     onPressed: _applyFilters,
                   ),
                 ),

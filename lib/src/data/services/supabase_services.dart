@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/call_request.dart';
 import '../../domain/entities/call_log.dart';
 import '../../domain/entities/dashboard_stats.dart';
-import '../../domain/entities/demo_model.dart';
 
 class SupabaseService {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -662,14 +661,14 @@ class SupabaseService {
         query = query.lte('created_at', endDate.toIso8601String());
       }
 
-      query = query.order('created_at', ascending: false);
+      // query = query.order('created_at', ascending: false);
 
-      if (limit != null) {
-        query = query.limit(limit);
-      }
-      if (offset != null) {
-        query = query.range(offset, offset + (limit ?? 10) - 1);
-      }
+      // if (limit != null) {
+      //   query = query.limit(limit);
+      // }
+      // if (offset != null) {
+      //   query = query.range(offset, offset + (limit ?? 10) - 1);
+      // }
 
       final response = await query;
       return (response as List)
@@ -695,11 +694,11 @@ class SupabaseService {
         query = query.eq('assigned_to', assignedTo);
       }
 
-      query = query.order('demo_date');
+      // query = query.order('demo_date');
 
-      if (limit != null) {
-        query = query.limit(limit);
-      }
+      // if (limit != null) {
+      //   query = query.limit(limit);
+      // }
 
       final response = await query;
       return (response as List)
@@ -762,14 +761,14 @@ class SupabaseService {
         query = query.eq('status', status);
       }
 
-      query = query.order('created_at', ascending: false);
+      // query = query.order('created_at', ascending: false);
 
-      if (limit != null) {
-        query = query.limit(limit);
-      }
-      if (offset != null) {
-        query = query.range(offset, offset + (limit ?? 10) - 1);
-      }
+      // if (limit != null) {
+      //   query = query.limit(limit);
+      // }
+      // if (offset != null) {
+      //   query = query.range(offset, offset + (limit ?? 10) - 1);
+      // }
 
       final response = await query;
       return List<Map<String, dynamic>>.from(response);
@@ -795,14 +794,14 @@ class SupabaseService {
         query = query.eq('status', status);
       }
 
-      query = query.order('created_at', ascending: false);
+      // query = query.order('created_at', ascending: false);
 
-      if (limit != null) {
-        query = query.limit(limit);
-      }
-      if (offset != null) {
-        query = query.range(offset, offset + (limit ?? 10) - 1);
-      }
+      // if (limit != null) {
+      //   query = query.limit(limit);
+      // }
+      // if (offset != null) {
+      //   query = query.range(offset, offset + (limit ?? 10) - 1);
+      // }
 
       final response = await query;
       return List<Map<String, dynamic>>.from(response);

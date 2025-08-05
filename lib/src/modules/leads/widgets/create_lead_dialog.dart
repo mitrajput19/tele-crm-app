@@ -1,4 +1,3 @@
-
 import '../../../app/app.dart';
 
 class CreateLeadDialog extends StatefulWidget {
@@ -15,30 +14,48 @@ class CreateLeadDialog extends StatefulWidget {
 
 class _CreateLeadDialogState extends State<CreateLeadDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _alternatePhoneController = TextEditingController();
-  final _companyController = TextEditingController();
+  final _studentNameController = TextEditingController();
+  final _contactNumberController = TextEditingController();
+  final _alternateContactController = TextEditingController();
+  final _schoolNameController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _quoteAmountController = TextEditingController();
   final _notesController = TextEditingController();
 
-  String _selectedStatus = 'new';
-  String _selectedPriority = 'medium';
-  String _selectedSource = 'website';
-  String _selectedStage = 'Fresh Lead';
+  String? _selectedBoard;
+  String? _selectedStandard;
+  String? _selectedSourceOfLead;
+  DateTime? _selectedDemoDateTime;
+  String? _selectedStatus;
+  String? _selectedAssignTo;
+  String? _selectedDemoPerformedBy;
 
-  final List<String> _statusOptions = ['new', 'contacted', 'qualified', 'demo_scheduled', 'demo_completed', 'customer', 'lost'];
-  final List<String> _priorityOptions = ['low', 'medium', 'high', 'urgent'];
-  final List<String> _sourceOptions = ['website', 'referral', 'cold_call', 'marketing', 'social_media'];
-  final List<String> _stageOptions = ['Fresh Lead', 'Contacted', 'Qualified', 'Demo Scheduled', 'Proposal Sent', 'Negotiation'];
+  // Sample data - replace with your actual data
+  final List<String> _boardOptions = ['CBSE', 'ICSE', 'State Board', 'IB', 'IGCSE'];
+  final List<String> _standardOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
+  final List<String> _sourceOptions = ['Website', 'Referral', 'Cold Call', 'Marketing', 'Social Media', 'Walk-in'];
+  final List<String> _statusOptions = ['Confirmed', 'Pending', 'Cancelled', 'Completed'];
+  final List<String> _assignToOptions = ['Me', 'John Doe', 'Jane Smith', 'Mike Johnson'];
+  final List<String> _demoPerformerOptions = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson'];
+
+  @override
+  void initState() {
+    super.initState();
+    // Set default values if needed
+    _selectedStatus = 'Confirmed';
+    _selectedAssignTo = 'Me';
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _alternatePhoneController.dispose();
-    _companyController.dispose();
+    _studentNameController.dispose();
+    _contactNumberController.dispose();
+    _alternateContactController.dispose();
+    _schoolNameController.dispose();
+    _cityController.dispose();
+    _addressController.dispose();
+    _quoteAmountController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -51,12 +68,12 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
       ),
       child: Container(
         padding: const EdgeInsets.all(20),
-        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Create New Lead',
+              'Create Demo',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -68,143 +85,266 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      CommonTextField(
-                        controller: _nameController,
-                        hintText: 'Student Name',
-                        labelText: 'Student Name *',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter student name';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      CommonTextField(
-                        controller: _emailController,
-                        hintText: 'Email Address',
-                        labelText: 'Email',
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value != null && value.isNotEmpty) {
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                              return 'Please enter a valid email';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      CommonTextField(
-                        controller: _phoneController,
-                        hintText: 'Phone Number',
-                        labelText: 'Phone Number *',
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter phone number';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      CommonTextField(
-                        controller: _alternatePhoneController,
-                        hintText: 'Alternate Phone',
-                        labelText: 'Alternate Phone',
-                        keyboardType: TextInputType.phone,
-                      ),
-                      const SizedBox(height: 16),
-                      CommonTextField(
-                        controller: _companyController,
-                        hintText: 'Company/Organization',
-                        labelText: 'Company',
-                      ),
-                      const SizedBox(height: 16),
+                      // Row 1: Student Name and Contact Number
                       Row(
                         children: [
                           Expanded(
-                            child: CommonDropDownField<String>(
+                            child: CommonTextField(
+                              controller: _studentNameController,
+                              hintText: 'Rahul Sharma',
+                              label: 'Student Name *',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter student name';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: CommonTextField(
+                              controller: _contactNumberController,
+                              hintText: '9123456789',
+                              label: 'Contact Number *',
+                              keyboardType: TextInputType.phone,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter contact number';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 2: Alternate Contact and Board
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CommonTextField(
+                              controller: _alternateContactController,
+                              hintText: '9123456789',
+                              label: 'Alternate Contact',
+                              keyboardType: TextInputType.phone,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: CommonDropdownField<String?>(
+                              getValueText: (value) => value ?? '',
+                              value: _selectedBoard,
+                              items: _boardOptions,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedBoard = value;
+                                });
+                              },
+                              label: 'Board *',
+                              hintText: 'Select board',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select board';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 3: Standard and School Name
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CommonDropdownField<String?>(
+                              getValueText: (value) => value ?? '',
+                              value: _selectedStandard,
+                              items: _standardOptions,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedStandard = value;
+                                });
+                              },
+                              label: 'Standard *',
+                              hintText: 'Select standard',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select standard';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: CommonTextField(
+                              controller: _schoolNameController,
+                              hintText: 'Mumbai Public School',
+                              label: 'School Name *',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter school name';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 4: City (full width)
+                      CommonTextField(
+                        controller: _cityController,
+                        hintText: 'Mumbai',
+                        label: 'City *',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter city';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 5: Address (full width)
+                      CommonTextField(
+                        controller: _addressController,
+                        hintText: '123, Main Street, Mumbai',
+                        label: 'Address',
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 6: Source of Lead (full width)
+                      CommonDropdownField<String?>(
+                        getValueText: (value) => value ?? '',
+                        value: _selectedSourceOfLead,
+                        items: _sourceOptions,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSourceOfLead = value;
+                          });
+                        },
+                        label: 'Source of Lead *',
+                        hintText: 'Select source',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select source of lead';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 7: Demo Date & Time and Status
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: _selectDateTime,
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  labelText: 'Demo Date & Time *',
+                                  border: OutlineInputBorder(),
+                                  suffixIcon: Icon(Icons.calendar_today),
+                                ),
+                                child: Text(
+                                  _selectedDemoDateTime != null
+                                      ? '${_selectedDemoDateTime!.day}/${_selectedDemoDateTime!.month}/${_selectedDemoDateTime!.year} ${_selectedDemoDateTime!.hour}:${_selectedDemoDateTime!.minute.toString().padLeft(2, '0')}'
+                                      : 'Select date and time',
+                                  style: TextStyle(
+                                    color: _selectedDemoDateTime != null
+                                        ? Theme.of(context).textTheme.bodyLarge?.color
+                                        : Theme.of(context).hintColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: CommonDropdownField<String?>(
+                              getValueText: (value) => value ?? '',
                               value: _selectedStatus,
-                              items: _statusOptions.map((status) {
-                                return DropdownMenuItem(
-                                  value: status,
-                                  child: Text(status.replaceAll('_', ' ').toUpperCase()),
-                                );
-                              }).toList(),
+                              items: _statusOptions,
                               onChanged: (value) {
                                 setState(() {
-                                  _selectedStatus = value!;
+                                  _selectedStatus = value;
                                 });
                               },
-                              labelText: 'Status',
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: CommonDropDownField<String>(
-                              value: _selectedPriority,
-                              items: _priorityOptions.map((priority) {
-                                return DropdownMenuItem(
-                                  value: priority,
-                                  child: Text(priority.toUpperCase()),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedPriority = value!;
-                                });
+                              label: 'Status *',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select status';
+                                }
+                                return null;
                               },
-                              labelText: 'Priority',
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
+                      
+                      // Row 8: Assign To and Demo Performed By
                       Row(
                         children: [
                           Expanded(
-                            child: CommonDropDownField<String>(
-                              value: _selectedSource,
-                              items: _sourceOptions.map((source) {
-                                return DropdownMenuItem(
-                                  value: source,
-                                  child: Text(source.replaceAll('_', ' ').toUpperCase()),
-                                );
-                              }).toList(),
+                            child: CommonDropdownField<String?>(
+                              getValueText: (value) => value ?? '',
+                              value: _selectedAssignTo,
+                              items: _assignToOptions,
                               onChanged: (value) {
                                 setState(() {
-                                  _selectedSource = value!;
+                                  _selectedAssignTo = value;
                                 });
                               },
-                              labelText: 'Source',
+                              label: 'Assign To *',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select assignee';
+                                }
+                                return null;
+                              },
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: CommonDropDownField<String>(
-                              value: _selectedStage,
-                              items: _stageOptions.map((stage) {
-                                return DropdownMenuItem(
-                                  value: stage,
-                                  child: Text(stage),
-                                );
-                              }).toList(),
+                            child: CommonDropdownField<String?>(
+                              getValueText: (value) => value ?? '',
+                              value: _selectedDemoPerformedBy,
+                              items: _demoPerformerOptions,
                               onChanged: (value) {
                                 setState(() {
-                                  _selectedStage = value!;
+                                  _selectedDemoPerformedBy = value;
                                 });
                               },
-                              labelText: 'Stage',
+                              label: 'Demo Performed By',
+                              hintText: 'Select performer',
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
+                      
+                      // Row 9: Quote Amount (full width)
+                      CommonTextField(
+                        controller: _quoteAmountController,
+                        hintText: 'Enter quote amount if applicable',
+                        label: 'Quote Amount (₹) (Optional)',
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Row 10: Notes (full width)
                       CommonTextField(
                         controller: _notesController,
-                        hintText: 'Notes',
-                        labelText: 'Notes',
+                        hintText: 'Any additional notes...',
+                        label: 'Notes',
                         maxLines: 3,
                       ),
                     ],
@@ -217,13 +357,13 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 CommonTextButton(
-                  text: 'Cancel',
+                  label: 'Cancel',
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 const SizedBox(width: 12),
                 CommonFilledButton(
-                  text: 'Create Lead',
-                  onPressed: _createLead,
+                  label: 'Create Demo',
+                  onPressed: _createDemo,
                 ),
               ],
             ),
@@ -233,30 +373,68 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
     );
   }
 
-  void _createLead() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _selectDateTime() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+    );
+    
+    if (date != null) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      
+      if (time != null) {
+        setState(() {
+          _selectedDemoDateTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
+        });
+      }
+    }
+  }
+
+  void _createDemo() {
+    // Validate required fields
+    bool isValid = _formKey.currentState!.validate();
+    
+    if (_selectedDemoDateTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select demo date and time')),
+      );
+      isValid = false;
+    }
+
+    if (isValid) {
       final lead = Demo(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        studentName: _nameController.text.trim(),
-        contactNo: _phoneController.text.trim(),
-        alternateContactNo: _alternatePhoneController.text.trim().isEmpty 
+        studentName: _studentNameController.text.trim(),
+        contactNo: _contactNumberController.text.trim(),
+        alternateContactNo: _alternateContactController.text.trim().isEmpty 
             ? null 
-            : _alternatePhoneController.text.trim(),
-        email: _emailController.text.trim().isEmpty 
+            : _alternateContactController.text.trim(),
+        schoolName: _schoolNameController.text.trim(),
+        standard: _selectedStandard ?? '',
+        demoDate: _selectedDemoDateTime ?? DateTime.now(),
+        status: _selectedStatus ?? '',
+        sourceOfLead: _selectedSourceOfLead ?? '',
+        demoPerformedBy: _selectedDemoPerformedBy ?? '',
+        quoteAmount: _quoteAmountController.text.trim().isEmpty 
             ? null 
-            : _emailController.text.trim(),
-        college: _companyController.text.trim().isEmpty 
-            ? null 
-            : _companyController.text.trim(),
-        status: _selectedStatus,
-        priority: _selectedPriority,
-        source: _selectedSource,
-        stage: _selectedStage,
+            : double.tryParse(_quoteAmountController.text.trim()),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         notes: _notesController.text.trim().isEmpty 
             ? null 
             : _notesController.text.trim(),
+
       );
 
       widget.onLeadCreated(lead);

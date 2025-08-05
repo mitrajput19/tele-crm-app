@@ -28,7 +28,7 @@ class LeadListItem extends StatelessWidget {
       child: CommonCard(
         padding: EdgeInsets.zero,
         child: Material(
-          color: isSelected ? AppColors.primaryColor.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? AppColors.lightPrimary.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             onTap: onTap,
@@ -49,7 +49,7 @@ class LeadListItem extends StatelessWidget {
                                 ? Icons.check_circle 
                                 : Icons.radio_button_unchecked,
                             color: isSelected 
-                                ? AppColors.primaryColor 
+                                ? AppColors.lightPrimary 
                                 : Colors.grey,
                           ),
                         ),
@@ -75,7 +75,7 @@ class LeadListItem extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                            if (lead.email != null) ...[
+                            if (lead.alternateContactNo != null) ...[
                               const SizedBox(height: 2),
                               Row(
                                 children: [
@@ -83,7 +83,7 @@ class LeadListItem extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      lead.email!,
+                                      lead.alternateContactNo!,
                                       style: Theme.of(context).textTheme.bodyMedium,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -96,7 +96,7 @@ class LeadListItem extends StatelessWidget {
                       ),
                       if (!isSelectionMode) ...[
                         IconButton(
-                          icon: const Icon(Icons.call, color: AppColors.primaryColor),
+                          icon:  Icon(Icons.call, color: AppColors.lightPrimary),
                           onPressed: onCallPressed,
                           tooltip: 'Create Call',
                         ),
@@ -113,7 +113,7 @@ class LeadListItem extends StatelessWidget {
                     children: [
                       _buildStatusChip(lead.status),
                       const SizedBox(width: 8),
-                      _buildPriorityChip(lead.priority ?? 'medium'),
+                      _buildPriorityChip(lead.sourceOfLead ?? 'medium'),
                       const Spacer(),
                       Text(
                         _formatDate(lead.createdAt),
