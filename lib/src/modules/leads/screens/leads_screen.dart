@@ -1,6 +1,7 @@
 
 import '../../../app/app.dart';
 import '../bloc/leads_bloc.dart';
+import '../widgets/widgets.dart';
 
 class LeadsScreen extends StatelessWidget {
   const LeadsScreen({super.key});

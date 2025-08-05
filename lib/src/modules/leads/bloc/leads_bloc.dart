@@ -2,6 +2,7 @@
 
 import '../../../app/app.dart';
 import '../../../domain/entities/call_request.dart';
+import '../models/leads_filter.dart';
 
 part 'leads_event.dart';
 part 'leads_state.dart';
