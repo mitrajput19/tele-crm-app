@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   Future<void> handleAppResumedState() async {
     try {
-      
+
     } catch (e) {
       LogHelper.log('Error handling app resume: $e', tag: 'AppLifecycle');
     }

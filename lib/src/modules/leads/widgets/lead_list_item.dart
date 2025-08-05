@@ -242,3 +242,247 @@ class LeadListItem extends StatelessWidget {
     }
   }
 }
+import 'package:flutter/material.dart';
+import '../../../app/app.dart';
+import '../../../domain/entities/demo_model.dart';
+
+class LeadListItem extends StatelessWidget {
+  final Demo lead;
+  final bool isSelected;
+  final bool isSelectionMode;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final VoidCallback onCallPressed;
+  final VoidCallback onEditPressed;
+
+  const LeadListItem({
+    super.key,
+    required this.lead,
+    required this.isSelected,
+    required this.isSelectionMode,
+    required this.onTap,
+    required this.onLongPress,
+    required this.onCallPressed,
+    required this.onEditPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: isSelected 
+                ? Border.all(color: AppColors.primary, width: 2)
+                : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Avatar with initials
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: _getStatusColor(lead.status),
+                    child: Text(
+                      _getInitials(lead.studentName),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Lead info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lead.studentName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (lead.contactNo != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            lead.contactNo!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  // Status and actions
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(lead.status).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _getStatusDisplayName(lead.status),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _getStatusColor(lead.status),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      if (!isSelectionMode) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: onCallPressed,
+                              icon: const Icon(Icons.call, size: 20),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            IconButton(
+                              onPressed: onEditPressed,
+                              icon: const Icon(Icons.edit, size: 20),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Additional info
+              Row(
+                children: [
+                  if (lead.standard.isNotEmpty) ...[
+                    Icon(Icons.school, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Class ${lead.standard}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                  if (lead.standard.isNotEmpty && lead.board != null) ...[
+                    const SizedBox(width: 16),
+                  ],
+                  if (lead.board != null) ...[
+                    Icon(Icons.menu_book, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 4),
+                    Text(
+                      lead.board!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.event, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Demo: ${DateTimeHelper.formatDate(lead.demoDate)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    DateTimeHelper.timeAgo(lead.createdAt),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+              if (lead.notes != null && lead.notes!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  lead.notes!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getInitials(String name) {
+    final words = name.trim().split(' ');
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    }
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'fresh':
+        return Colors.green;
+      case 'contacted':
+        return Colors.blue;
+      case 'qualified':
+        return Colors.orange;
+      case 'demo_scheduled':
+        return Colors.purple;
+      case 'demo_completed':
+        return Colors.teal;
+      case 'converted':
+        return Colors.green[700]!;
+      case 'not_interested':
+        return Colors.red;
+      case 'postponed':
+        return Colors.amber;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getStatusDisplayName(String status) {
+    switch (status.toLowerCase()) {
+      case 'demo_scheduled':
+        return 'Demo Scheduled';
+      case 'demo_completed':
+        return 'Demo Completed';
+      case 'not_interested':
+        return 'Not Interested';
+      default:
+        return status.substring(0, 1).toUpperCase() + status.substring(1);
+    }
+  }
+}

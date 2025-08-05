@@ -1,5 +1,5 @@
 class AppRoutes {
-  static const String splash = '/splash';
+  static const String splash = '/';
   static const String login = '/login';
   static const String forgotPassword = '/forgot_password';
   static const String otp = '/otp';
@@ -105,4 +105,8 @@ class AppRoutes {
   static const String restaurantTable = '/restaurant-table';
   static const String restaurantDish = '/restaurant-dish';
   static const String restaurantCart = '/restaurant-cart';
+
+  static const String myActivities = '/my-activities';
+  static const String leaderboard = '/leaderboard';
+  static const String callRecording = '/call-recording';
 }

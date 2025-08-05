@@ -442,3 +442,263 @@ class _CreateLeadDialogState extends State<CreateLeadDialog> {
     }
   }
 }
+import 'package:flutter/material.dart';
+import '../../../app/app.dart';
+import '../../../domain/entities/demo_model.dart';
+
+class CreateLeadDialog extends StatefulWidget {
+  final Function(Demo) onLeadCreated;
+
+  const CreateLeadDialog({
+    super.key,
+    required this.onLeadCreated,
+  });
+
+  @override
+  State<CreateLeadDialog> createState() => _CreateLeadDialogState();
+}
+
+class _CreateLeadDialogState extends State<CreateLeadDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _studentNameController = TextEditingController();
+  final _contactController = TextEditingController();
+  final _alternateContactController = TextEditingController();
+  final _standardController = TextEditingController();
+  final _schoolNameController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  String _selectedBoard = 'CBSE';
+  String _selectedStatus = 'fresh';
+  String _selectedSource = 'direct';
+  DateTime _selectedDemoDate = DateTime.now().add(const Duration(days: 1));
+
+  final List<String> _boards = ['CBSE', 'ICSE', 'State Board', 'IB', 'Other'];
+  final List<String> _statuses = ['fresh', 'contacted', 'qualified', 'demo_scheduled'];
+  final List<String> _sources = ['direct', 'referral', 'website', 'social_media', 'advertisement'];
+
+  @override
+  void dispose() {
+    _studentNameController.dispose();
+    _contactController.dispose();
+    _alternateContactController.dispose();
+    _standardController.dispose();
+    _schoolNameController.dispose();
+    _cityController.dispose();
+    _addressController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.8,
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Create New Lead',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      CommonTextField(
+                        controller: _studentNameController,
+                        labelText: 'Student Name *',
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Student name is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _contactController,
+                        labelText: 'Contact Number *',
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Contact number is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _alternateContactController,
+                        labelText: 'Alternate Contact',
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _standardController,
+                        labelText: 'Standard *',
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Standard is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      CommonDropDownField<String>(
+                        value: _selectedBoard,
+                        items: _boards.map((board) {
+                          return DropdownMenuItem(
+                            value: board,
+                            child: Text(board),
+                          );
+                        }).toList(),
+                        labelText: 'Board',
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedBoard = value!;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _schoolNameController,
+                        labelText: 'School Name',
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _cityController,
+                        labelText: 'City',
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _addressController,
+                        labelText: 'Address',
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 16),
+                      CommonDropDownField<String>(
+                        value: _selectedSource,
+                        items: _sources.map((source) {
+                          return DropdownMenuItem(
+                            value: source,
+                            child: Text(source.replaceAll('_', ' ').toUpperCase()),
+                          );
+                        }).toList(),
+                        labelText: 'Source of Lead',
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSource = value!;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      ListTile(
+                        title: const Text('Demo Date'),
+                        subtitle: Text(DateTimeHelper.formatDate(_selectedDemoDate)),
+                        trailing: const Icon(Icons.calendar_today),
+                        onTap: _selectDemoDate,
+                      ),
+                      const SizedBox(height: 16),
+                      CommonTextField(
+                        controller: _notesController,
+                        labelText: 'Notes',
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: CommonOutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      text: 'Cancel',
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: CommonFilledButton(
+                      onPressed: _createLead,
+                      text: 'Create Lead',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDemoDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _selectedDemoDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (date != null) {
+      setState(() {
+        _selectedDemoDate = date;
+      });
+    }
+  }
+
+  void _createLead() {
+    if (_formKey.currentState?.validate() ?? false) {
+      final demo = Demo(
+        id: '',
+        studentName: _studentNameController.text.trim(),
+        board: _selectedBoard,
+        standard: _standardController.text.trim(),
+        contactNo: _contactController.text.trim(),
+        alternateContactNo: _alternateContactController.text.trim().isEmpty 
+            ? null 
+            : _alternateContactController.text.trim(),
+        demoDate: _selectedDemoDate,
+        status: _selectedStatus,
+        notes: _notesController.text.trim().isEmpty 
+            ? null 
+            : _notesController.text.trim(),
+        schoolName: _schoolNameController.text.trim().isEmpty 
+            ? null 
+            : _schoolNameController.text.trim(),
+        city: _cityController.text.trim().isEmpty 
+            ? null 
+            : _cityController.text.trim(),
+        address: _addressController.text.trim().isEmpty 
+            ? null 
+            : _addressController.text.trim(),
+        sourceOfLead: _selectedSource,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      widget.onLeadCreated(demo);
+      Navigator.pop(context);
+    }
+  }
+}

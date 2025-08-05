@@ -1,5 +1,5 @@
-
 import '../../app/app.dart';
+import '../../modules/telecrm/telecrm.dart';
 
 final myRouteObserver = MyRouteObserver();
 
@@ -66,19 +66,19 @@ class AppRouter {
         path: AppRoutes.dashboard,
         pageBuilder: defaultPageBuilder(const DashboardScreen()),
       ),
-      
+
       GoRoute(
         path: AppRoutes.signature,
         pageBuilder: defaultPageBuilder(const SignatureScreen()),
       ),
-      
-     
-      
+
+
+
       GoRoute(
         path: AppRoutes.locationPermission,
         pageBuilder: defaultPageBuilder(const LocationPermissionScreen()),
       ),
-      
+
       GoRoute(
         path: AppRoutes.maintenance,
         pageBuilder: (context, state) {
@@ -91,8 +91,19 @@ class AppRouter {
           );
         },
       ),
-      
-      
+      GoRoute(
+        path: AppRoutes.myActivities,
+        pageBuilder: defaultPageBuilder(const MyActivitiesScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.leaderboard,
+        pageBuilder: defaultPageBuilder(const LeaderboardScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.callRecording,
+        pageBuilder: defaultPageBuilder(const CallRecordingScreen()),
+      ),
+
     ],
   );
 }
