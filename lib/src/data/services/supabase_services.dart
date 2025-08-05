@@ -576,7 +576,110 @@ class SupabaseService {
         .subscribe();
   }
 
-  // Lead/Demo integration
+  // Lead/Demo Management Methods
+  Future<Demo> createLead(Demo lead) async {
+    try {
+      final response = await _client
+          .from('demos')
+          .insert(lead.toJson())
+          .select()
+          .single();
+      return Demo.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to create lead: $e');
+    }
+  }
+
+  Future<Demo> updateLead(String id, Map<String, dynamic> updates) async {
+    try {
+      final updateData = {
+        ...updates,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      final response = await _client
+          .from('demos')
+          .update(updateData)
+          .eq('id', id)
+          .select()
+          .single();
+      return Demo.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to update lead: $e');
+    }
+  }
+
+  Future<void> deleteLead(String id) async {
+    try {
+      await _client.from('demos').delete().eq('id', id);
+    } catch (e) {
+      throw Exception('Failed to delete lead: $e');
+    }
+  }
+
+  Future<Demo> getLeadById(String id) async {
+    try {
+      final response = await _client
+          .from('demos')
+          .select()
+          .eq('id', id)
+          .single();
+      return Demo.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to get lead: $e');
+    }
+  }
+
+  Future<List<Demo>> getLeads({
+    String? status,
+    String? assignedTo,
+    String? priority,
+    String? stage,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      var query = _client.from('demos').select();
+
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+      if (assignedTo != null) {
+        query = query.eq('assigned_to', assignedTo);
+      }
+      if (priority != null) {
+        query = query.eq('priority', priority);
+      }
+      if (stage != null) {
+        query = query.eq('stage', stage);
+      }
+      if (startDate != null) {
+        query = query.gte('created_at', startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.lte('created_at', endDate.toIso8601String());
+      }
+
+      query = query.order('created_at', ascending: false);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      if (offset != null) {
+        query = query.range(offset, offset + (limit ?? 10) - 1);
+      }
+
+      final response = await query;
+      return (response as List)
+          .map((json) => Demo.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch leads: $e');
+    }
+  }
+
   Future<List<Demo>> getLeadsForCalling({
     String? status,
     String? assignedTo,
@@ -592,10 +695,10 @@ class SupabaseService {
         query = query.eq('assigned_to', assignedTo);
       }
 
-      // query = query.order('demo_date');
+      query = query.order('demo_date');
 
       if (limit != null) {
-        // query = query.limit(limit);
+        query = query.limit(limit);
       }
 
       final response = await query;
@@ -626,6 +729,112 @@ class SupabaseService {
       return Demo.fromJson(response);
     } catch (e) {
       throw Exception('Failed to update lead status: $e');
+    }
+  }
+
+  Future<Demo> assignLead(String id, String agentId) async {
+    try {
+      final response = await _client
+          .from('demos')
+          .update({
+            'assigned_to': agentId,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', id)
+          .select()
+          .single();
+      return Demo.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to assign lead: $e');
+    }
+  }
+
+  // Campaign Management Methods
+  Future<List<Map<String, dynamic>>> getCampaigns({
+    String? status,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      var query = _client.from('campaigns').select();
+
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+
+      query = query.order('created_at', ascending: false);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      if (offset != null) {
+        query = query.range(offset, offset + (limit ?? 10) - 1);
+      }
+
+      final response = await query;
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw Exception('Failed to fetch campaigns: $e');
+    }
+  }
+
+  // WhatsApp Integration Methods
+  Future<List<Map<String, dynamic>>> getWhatsAppMessages({
+    String? leadId,
+    String? status,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      var query = _client.from('whatsapp_messages').select();
+
+      if (leadId != null) {
+        query = query.eq('lead_id', leadId);
+      }
+      if (status != null) {
+        query = query.eq('status', status);
+      }
+
+      query = query.order('created_at', ascending: false);
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      if (offset != null) {
+        query = query.range(offset, offset + (limit ?? 10) - 1);
+      }
+
+      final response = await query;
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw Exception('Failed to fetch WhatsApp messages: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> sendWhatsAppMessage({
+    required String leadId,
+    required String message,
+    String? templateName,
+    Map<String, dynamic>? templateData,
+  }) async {
+    try {
+      final messageData = {
+        'lead_id': leadId,
+        'message': message,
+        'template_name': templateName,
+        'template_data': templateData,
+        'status': 'pending',
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
+      final response = await _client
+          .from('whatsapp_messages')
+          .insert(messageData)
+          .select()
+          .single();
+      return response;
+    } catch (e) {
+      throw Exception('Failed to send WhatsApp message: $e');
     }
   }
 
