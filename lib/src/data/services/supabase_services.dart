@@ -837,4 +837,90 @@ class SupabaseService {
     }
   }
 
+  // Call Recording Methods
+  Future<List<CallLog>> getCallLogs({
+    String? status,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      var query = _client
+          .from('call_recordings')
+          .select()
+          .order('start_time', ascending: false)
+          .range(offset, offset + limit - 1);
+
+      if (status != null) {
+        query = query.eq('call_status', status);
+      }
+
+      final response = await query;
+      return (response as List)
+          .map((json) => CallLog.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch call logs: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> createCallRecording(Map<String, dynamic> data) async {
+    try {
+      final response = await _client
+          .from('call_recordings')
+          .insert(data)
+          .select()
+          .single();
+      return response;
+    } catch (e) {
+      throw Exception('Failed to create call recording: $e');
+    }
+  }
+
+  Future<void> updateCallRecording(String id, Map<String, dynamic> data) async {
+    try {
+      await _client
+          .from('call_recordings')
+          .update(data)
+          .eq('id', id);
+    } catch (e) {
+      throw Exception('Failed to update call recording: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCallRecordings({
+    String? callerId,
+    String? contactId,
+    String? demoRequestId,
+    DateTime? startDate,
+    DateTime? endDate,
+    int limit = 50,
+  }) async {
+    try {
+      var query = _client
+          .from('call_recordings')
+          .select()
+          .order('start_time', ascending: false);
+
+      if (callerId != null) {
+        query = query.eq('caller_id', callerId);
+      }
+      if (contactId != null) {
+        query = query.eq('contact_id', contactId);
+      }
+      if (demoRequestId != null) {
+        query = query.eq('demo_request_id', demoRequestId);
+      }
+      if (startDate != null) {
+        query = query.gte('start_time', startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.lte('start_time', endDate.toIso8601String());
+      }
+
+      final response = await query.limit(limit);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw Exception('Failed to fetch call recordings: $e');
+    }
+  }
 }

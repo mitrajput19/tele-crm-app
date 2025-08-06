@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import '../../../app/app.dart';
+import '../widgets/call_recording_sync_widget.dart';
 
 class CallRecordingScreen extends StatefulWidget {
   const CallRecordingScreen({super.key});
@@ -54,11 +55,18 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Call Recording Sync Section
+            const CallRecordingSyncWidget(),
+            
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
+            
             // Recording's Folder Section
             const Text(
               "Recording's Folder",
@@ -69,37 +77,42 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
             ),
             const SizedBox(height: 24),
             // Folder selection area
-            Expanded(
-              flex: 2,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.folder_outlined,
-                      size: 80,
-                      color: Colors.grey[400],
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _selectedFolder != null 
+                        ? Icons.folder 
+                        : Icons.folder_outlined,
+                    size: 80,
+                    color: _selectedFolder != null 
+                        ? Colors.blue 
+                        : Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _selectedFolder ?? 'Auto-detected call recordings folder',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: _selectedFolder != null 
+                          ? Colors.blue 
+                          : Colors.grey[600],
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No folder selected',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    CommonFilledButton(
-                      onPressed: _selectFolder,
-                      label: 'Select folder',
-                    ),
-                  ],
-                ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  CommonFilledButton(
+                    onPressed: _selectFolder,
+                    label: 'Change folder',
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 32),
@@ -126,10 +139,12 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
             _buildTroubleshootItem('Add call recording folder again'),
             _buildTroubleshootItem('Disable Truecaller as default Dialer app'),
             _buildTroubleshootItem('Check you have good internet connection'),
+            _buildTroubleshootItem('Grant storage permissions for the app'),
+            _buildTroubleshootItem('Ensure call recording is enabled on device'),
             const SizedBox(height: 24),
             // Footer note
             Text(
-              '*This feature is only available to devices which has inbuild call recordings feature.',
+              '*This feature automatically detects and syncs call recordings from your device. Ensure call recording is enabled in your phone settings.',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[600],
@@ -143,6 +158,7 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
                 TextButton(
                   onPressed: () {
                     // Handle see recording uploads
+                    _showUploadHistory();
                   },
                   child: const Text('See recording uploads'),
                 ),
@@ -150,6 +166,7 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
                 TextButton(
                   onPressed: () {
                     // Handle check compatibilities
+                    _showCompatibilityInfo();
                   },
                   child: const Text('Check compatibilities'),
                 ),
@@ -162,12 +179,6 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Handle refresh or sync
-        },
-        child: const Icon(Icons.sync),
       ),
     );
   }
@@ -183,9 +194,11 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
             color: Colors.black,
           ),
           const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 14),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 14),
+            ),
           ),
         ],
       ),
@@ -193,25 +206,65 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
   }
 
   void _selectFolder() {
-    // TODO: Implement folder selection
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Recording Folder'),
-        content: const Text('This feature will allow you to select a folder for storing call recordings.'),
+        title: const Text('Recording Folder'),
+        content: const Text(
+          'The app automatically detects call recordings from common locations on your device. '
+          'If recordings are not being detected, ensure:\n\n'
+          '• Call recording is enabled in phone settings\n'
+          '• Storage permissions are granted\n'
+          '• Recordings are saved in a standard location'
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('OK'),
           ),
+        ],
+      ),
+    );
+  }
+
+  void _showUploadHistory() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Upload History'),
+        content: const SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: Center(
+            child: Text('Upload history will be displayed here'),
+          ),
+        ),
+        actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _selectedFolder = 'Call Recordings';
-              });
-            },
-            child: const Text('Select'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCompatibilityInfo() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Device Compatibility'),
+        content: const Text(
+          'Call recording sync is compatible with:\n\n'
+          '• Android devices with built-in call recording\n'
+          '• Samsung, Xiaomi, OnePlus, and other OEM dialers\n'
+          '• Third-party recording apps that save to standard locations\n\n'
+          'Note: Some devices may require enabling call recording in system settings.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
         ],
       ),
