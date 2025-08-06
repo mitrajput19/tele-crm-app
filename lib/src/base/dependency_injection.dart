@@ -32,7 +32,10 @@ class DependencyInjection {
     getIt.registerLazySingleton<DashboardBloc>(
       () => DashboardBloc(supabaseServices: getIt<SupabaseService>()),
     );
-    
+    getIt.registerLazySingleton<CallService>(
+      () => CallService(),
+    );
+
     getIt.registerFactory<AuthBloc>(
       () => AuthBloc(supabaseService: getIt<SupabaseService>()),
     );

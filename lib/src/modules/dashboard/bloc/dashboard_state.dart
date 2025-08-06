@@ -1,6 +1,5 @@
 part of 'dashboard_bloc.dart';
 
-
 abstract class DashboardState extends Equatable {
   const DashboardState();
 
@@ -74,4 +73,103 @@ class CallCompleted extends DashboardState {
 
   @override
   List<Object?> get props => [completedCallLog];
+}
+
+// New Direct Calling States
+class DirectCallInitiated extends DashboardState {
+  final String callId;
+  final String leadId;
+  final String phoneNumber;
+  final String customerName;
+  final DateTime startTime;
+
+  const DirectCallInitiated({
+    required this.callId,
+    required this.leadId,
+    required this.phoneNumber,
+    required this.customerName,
+    required this.startTime,
+  });
+
+  @override
+  List<Object?> get props => [callId, leadId, phoneNumber, customerName, startTime];
+}
+
+class DirectCallConnected extends DashboardState {
+  final String callId;
+  final CallRequest callRequest;
+  final CallLog callLog;
+  final String phoneNumber;
+  final String customerName;
+  final DateTime startTime;
+
+  const DirectCallConnected({
+    required this.callId,
+    required this.callRequest,
+    required this.callLog,
+    required this.phoneNumber,
+    required this.customerName,
+    required this.startTime,
+  });
+
+  @override
+  List<Object?> get props => [callId, callRequest, callLog, phoneNumber, customerName, startTime];
+}
+
+class DirectCallFailed extends DashboardState {
+  final String leadId;
+  final String phoneNumber;
+  final String customerName;
+  final String error;
+
+  const DirectCallFailed({
+    required this.leadId,
+    required this.phoneNumber,
+    required this.customerName,
+    required this.error,
+  });
+
+  @override
+  List<Object?> get props => [leadId, phoneNumber, customerName, error];
+}
+
+class DialerCallInitiated extends DashboardState {
+  final String leadId;
+  final String phoneNumber;
+  final String customerName;
+
+  const DialerCallInitiated({
+    required this.leadId,
+    required this.phoneNumber,
+    required this.customerName,
+  });
+
+  @override
+  List<Object?> get props => [leadId, phoneNumber, customerName];
+}
+
+class BulkCallProcessing extends DashboardState {
+  final int totalLeads;
+
+  const BulkCallProcessing({required this.totalLeads});
+
+  @override
+  List<Object?> get props => [totalLeads];
+}
+
+class BulkCallCompleted extends DashboardState {
+  final int totalLeads;
+  final int successCount;
+  final int failedCount;
+  final List<String> errors;
+
+  const BulkCallCompleted({
+    required this.totalLeads,
+    required this.successCount,
+    required this.failedCount,
+    required this.errors,
+  });
+
+  @override
+  List<Object?> get props => [totalLeads, successCount, failedCount, errors];
 }

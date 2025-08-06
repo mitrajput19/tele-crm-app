@@ -83,6 +83,7 @@
         </activity>
 
         <!-- Call Receiver for handling phone state changes -->
+        <!-- 
         <receiver 
             android:name=".CallReceiver"
             android:enabled="true"
@@ -92,11 +93,11 @@
             </intent-filter>
         </receiver>
 
-        <!-- Overlay Service for display over other apps -->
         <service 
             android:name=".OverlayService"
             android:enabled="true"
             android:exported="false" />
+        -->
 
         <meta-data
             android:name="flutterEmbedding"

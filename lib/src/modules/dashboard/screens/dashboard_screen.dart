@@ -1,16 +1,6 @@
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/themes/app_colors.dart';
-import '../../../core/widgets/common_filled_button.dart';
-import '../../../core/widgets/common_loader.dart';
-import '../../../core/widgets/common_refresh_indicator.dart';
-import '../bloc/dashboard_bloc.dart';
-import '../widgets/dashboard_stats_widget.dart';
-import '../widgets/call_request_card.dart';
-import '../widgets/call_log_card.dart';
-import '../widgets/lead_card.dart';
-import '../widgets/call_in_progress_widget.dart';
+
+import '../../../app/app.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -101,9 +91,9 @@ class _DashboardScreenState extends State<DashboardScreen>
             );
           }
 
-          if (state is DashboardLoading) {
-            return const Center(child: CommonLoader());
-          }
+          // if (state is DashboardLoading) {
+          //   return const Center(child: CommonLoader());
+          // }
 
           if (state is DashboardError) {
             return Center(
@@ -317,58 +307,65 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildLeadsTab(DashboardLoaded state) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Leads (${state.leads.length})',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  context.read<DashboardBloc>().add(
-                    LoadLeadsForCalling(status: value == 'all' ? null : value),
-                  );
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'all', child: Text('All')),
-                  const PopupMenuItem(value: 'pending', child: Text('Pending')),
-                  const PopupMenuItem(value: 'contacted', child: Text('Contacted')),
-                  const PopupMenuItem(value: 'interested', child: Text('Interested')),
-                  const PopupMenuItem(value: 'not_interested', child: Text('Not Interested')),
-                ],
-                child: const Icon(Icons.filter_list),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (state.leads.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Text('No leads found'),
-              ),
-            )
-          else
-            ...state.leads.map(
-              (lead) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: LeadCard(
-                  lead: lead,
-                  onCreateCallRequest: () {
-                    // TODO: Create call request from lead
+ Widget _buildLeadsTab(DashboardLoaded state) {
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Leads (${state.leads.length})',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Row(
+              children: [
+                
+                const SizedBox(width: 8),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    context.read<DashboardBloc>().add(
+                      LoadLeadsForCalling(status: value == 'all' ? null : value),
+                    );
                   },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 'all', child: Text('All')),
+                    const PopupMenuItem(value: 'pending', child: Text('Pending')),
+                    const PopupMenuItem(value: 'contacted', child: Text('Contacted')),
+                    const PopupMenuItem(value: 'interested', child: Text('Interested')),
+                    const PopupMenuItem(value: 'not_interested', child: Text('Not Interested')),
+                  ],
+                  child: const Icon(Icons.filter_list),
                 ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (state.leads.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Text('No leads found'),
+            ),
+          )
+        else
+          ...state.leads.map(
+            (lead) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: LeadCard(
+                lead: lead,
+                onCreateCallRequest: () {
+                  // log('Creating call request for lead ${getIt<SupabaseService>().currentUser?.identities?.first.identityData?['full_name']}');
+                  context.read<DashboardBloc>().add(MakeDirectCall(phoneNumber: lead.contactNo ?? '', leadId: lead.id, customerName: lead.studentName,agentName: getIt<SupabaseService>().currentUser?.identities?.first.identityData?['full_name'],agentId: getIt<SupabaseService>().currentUser?.id));
+                },
+                
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
+          ),
+      ],
+    ),
+  );
+}}
