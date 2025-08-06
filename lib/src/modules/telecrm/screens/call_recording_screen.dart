@@ -96,7 +96,7 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
                     const SizedBox(height: 24),
                     CommonFilledButton(
                       onPressed: _selectFolder,
-                      text: 'Select folder',
+                      label: 'Select folder',
                     ),
                   ],
                 ),

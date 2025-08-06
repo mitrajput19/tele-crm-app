@@ -2,7 +2,6 @@
 
 import '../../../app/app.dart';
 import '../../../domain/entities/call_request.dart';
-import '../models/leads_filter.dart';
 
 part 'leads_event.dart';
 part 'leads_state.dart';
@@ -13,19 +12,19 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
   LeadsBloc({required SupabaseService supabaseService})
       : _supabaseService = supabaseService,
         super(LeadsInitial()) {
-    on<LoadLeads>(_onLoadLeads);
-    on<CreateLead>(_onCreateLead);
-    on<UpdateLead>(_onUpdateLead);
+    on<LoadLeadsEvent>(_onLoadLeads);
+    on<CreateLeadEvent>(_onCreateLead);
+    on<UpdateLeadEvent>(_onUpdateLead);
 
-    on<FilterLeads>(_onFilterLeads);
-    on<SearchLeads>(_onSearchLeads);
+    on<FilterLeadsEvent>(_onFilterLeads);
+    on<SearchLeadsEvent>(_onSearchLeads);
     on<CreateCallRequestFromLead>(_onCreateCallRequestFromLead);
     on<UpdateLeadStatus>(_onUpdateLeadStatus);
     on<AssignLead>(_onAssignLead);
     on<BulkUpdateLeads>(_onBulkUpdateLeads);
   }
 
-  Future<void> _onLoadLeads(LoadLeads event, Emitter<LeadsState> emit) async {
+  Future<void> _onLoadLeads(LoadLeadsEvent event, Emitter<LeadsState> emit) async {
     emit(LeadsLoading());
     try {
       final leads = await _supabaseService.getLeadsForCalling();
@@ -35,7 +34,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
     }
   }
 
-  Future<void> _onCreateLead(CreateLead event, Emitter<LeadsState> emit) async {
+  Future<void> _onCreateLead(CreateLeadEvent event, Emitter<LeadsState> emit) async {
     try {
       final newLead = await _supabaseService.createLead(event.lead);
       if (state is LeadsLoaded) {
@@ -49,7 +48,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
     }
   }
 
-  Future<void> _onUpdateLead(UpdateLead event, Emitter<LeadsState> emit) async {
+  Future<void> _onUpdateLead(UpdateLeadEvent event, Emitter<LeadsState> emit) async {
     try {
       final updatedLead = await _supabaseService.updateLead(event.leadId, event.updates);
       if (state is LeadsLoaded) {
@@ -66,7 +65,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
 
   
 
-  Future<void> _onFilterLeads(FilterLeads event, Emitter<LeadsState> emit) async {
+  Future<void> _onFilterLeads(FilterLeadsEvent event, Emitter<LeadsState> emit) async {
     try {
       final leads = await _supabaseService.getLeadsForCalling(
         status: event.status,
@@ -85,7 +84,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
     }
   }
 
-  Future<void> _onSearchLeads(SearchLeads event, Emitter<LeadsState> emit) async {
+  Future<void> _onSearchLeads(SearchLeadsEvent event, Emitter<LeadsState> emit) async {
     if (state is LeadsLoaded) {
       final currentState = state as LeadsLoaded;
       if (event.query.isEmpty) {
@@ -187,7 +186,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
       }
       
       // Reload leads
-      add(LoadLeads());
+      add(LoadLeadsEvent());
     } catch (e) {
       emit(LeadsError(message: e.toString()));
     }

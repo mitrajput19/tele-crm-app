@@ -116,7 +116,7 @@ class LeadItemWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          DateTimeHelper.timeAgo(lead.updatedAt),
+                          lead.updatedAt.timeAgo,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[500],

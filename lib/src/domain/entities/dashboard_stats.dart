@@ -40,6 +40,17 @@ class DashboardStats {
         ?.map((e) => HourlyCallData.fromJson(e))
         .toList() ?? [],
   );
+
+  Map<String, dynamic> toJson() => {
+    'total_leads': totalLeads,
+    'pending_calls': pendingCalls,
+    'completed_calls': completedCalls,
+    'today_calls': todayCalls,
+    'connected_calls': connectedCalls,
+    'missed_calls': missedCalls,
+    'conversion_rate': conversionRate,
+    'average_call_duration': averageCallDuration,
+  };
 }
 
 class CallStatusCount {

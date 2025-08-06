@@ -1,4 +1,5 @@
 
+
 import '../../../app/app.dart';
 import '../bloc/leads_bloc.dart';
 import '../widgets/widgets.dart';
@@ -11,7 +12,7 @@ class LeadsScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => LeadsBloc(
         supabaseService: SupabaseService(),
-      )..add(LoadLeads()),
+      )..add(LoadLeadsEvent()),
       child: const LeadsView(),
     );
   }
@@ -82,7 +83,7 @@ class _LeadsViewState extends State<LeadsView> {
               hintText: 'Search leads...',
               prefixIcon: const Icon(Icons.search),
               onChanged: (value) {
-                context.read<LeadsBloc>().add(SearchLeads(query: value));
+                context.read<LeadsBloc>().add(SearchLeadsEvent(query: value));
               },
             ),
           ),
@@ -114,7 +115,7 @@ class _LeadsViewState extends State<LeadsView> {
                   
                   return RefreshIndicator(
                     onRefresh: () async {
-                      context.read<LeadsBloc>().add(LoadLeads());
+                      context.read<LeadsBloc>().add(LoadLeadsEvent());
                     },
                     child: ListView.builder(
                       padding: const EdgeInsets.all(16.0),
@@ -216,7 +217,7 @@ class _LeadsViewState extends State<LeadsView> {
       context: context,
       builder: (context) => CreateLeadDialog(
         onLeadCreated: (lead) {
-          context.read<LeadsBloc>().add(CreateLead(lead: lead));
+          context.read<LeadsBloc>().add(CreateLeadEvent(lead: lead));
         },
       ),
     );
@@ -228,7 +229,7 @@ class _LeadsViewState extends State<LeadsView> {
       builder: (context) => LeadFilterWidget(
         onFilterApplied: (status, assignedTo, priority) {
           context.read<LeadsBloc>().add(
-            FilterLeads(
+            FilterLeadsEvent(
               status: status,
               assignedTo: assignedTo,
               priority: priority,

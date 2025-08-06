@@ -99,10 +99,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : Colors.transparent,
+                      color: isSelected ? AppColors.lightPrimary : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : Colors.grey,
+                        color: isSelected ? AppColors.lightPrimary : Colors.grey,
                       ),
                     ),
                     child: Text(
@@ -128,15 +128,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.primary),
+                    border: Border.all(color: AppColors.lightPrimary),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
+                  child:  Text(
                     'Today',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
                 const Spacer(),

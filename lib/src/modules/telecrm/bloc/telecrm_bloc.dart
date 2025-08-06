@@ -107,7 +107,7 @@ class TeleCrmBloc extends Bloc<TeleCrmEvent, TeleCrmState> {
       emit(TeleCrmLoaded(
         leads: leads,
         calls: calls,
-        stats: stats,
+        stats: stats.toJson(),
       ));
     } catch (e) {
       emit(TeleCrmError(message: e.toString()));

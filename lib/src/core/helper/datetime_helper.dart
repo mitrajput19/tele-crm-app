@@ -18,6 +18,10 @@ extension DateTimeExt on DateTime {
   bool get isToday {
     return isSameDate(DateTime.now());
   }
+
+  String get timeAgo {
+    return DateFormat('dd MMM yyyy hh:mm a').format(this);
+  }
 }
 
 class DateTimePickerHelper {

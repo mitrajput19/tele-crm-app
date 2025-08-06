@@ -114,22 +114,18 @@ class _MyActivitiesViewState extends State<MyActivitiesView>
       child: Column(
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration:  BoxDecoration(
+              color: AppColors.lightPrimary,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CircleAvatar(
+                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
                   child: Text(
                     'HR',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
                 const SizedBox(height: 8),

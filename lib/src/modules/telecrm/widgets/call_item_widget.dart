@@ -108,7 +108,7 @@ class CallItemWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         Text(
-                          DateTimeHelper.timeAgo(call.startTime),
+                          call.startTime.timeAgo,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[500],
@@ -169,7 +169,7 @@ class CallItemWidget extends StatelessWidget {
       case 'failed':
         return Icons.call_missed_outgoing;
       case 'busy':
-        return Icons.phone_busy;
+        return Icons.call_missed_outgoing;
       case 'no_answer':
         return Icons.phone_missed;
       default:

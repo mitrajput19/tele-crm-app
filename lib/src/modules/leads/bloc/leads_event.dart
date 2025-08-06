@@ -8,22 +8,22 @@ abstract class LeadsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadLeads extends LeadsEvent {}
+class LoadLeadsEvent extends LeadsEvent {}
 
-class CreateLead extends LeadsEvent {
+class CreateLeadEvent extends LeadsEvent {
   final Demo lead;
 
-  const CreateLead({required this.lead});
+  const CreateLeadEvent({required this.lead});
 
   @override
   List<Object> get props => [lead];
 }
 
-class UpdateLead extends LeadsEvent {
+class UpdateLeadEvent extends LeadsEvent {
   final String leadId;
   final Map<String, dynamic> updates;
 
-  const UpdateLead({
+  const UpdateLeadEvent({
     required this.leadId,
     required this.updates,
   });
@@ -32,21 +32,21 @@ class UpdateLead extends LeadsEvent {
   List<Object> get props => [leadId, updates];
 }
 
-class DeleteLead extends LeadsEvent {
+class DeleteLeadEvent extends LeadsEvent {
   final String leadId;
 
-  const DeleteLead({required this.leadId});
+  const DeleteLeadEvent({required this.leadId});
 
   @override
   List<Object> get props => [leadId];
 }
 
-class FilterLeads extends LeadsEvent {
+class FilterLeadsEvent extends LeadsEvent {
   final String? status;
   final String? assignedTo;
   final String? priority;
 
-  const FilterLeads({
+  const FilterLeadsEvent({
     this.status,
     this.assignedTo,
     this.priority,
@@ -56,10 +56,10 @@ class FilterLeads extends LeadsEvent {
   List<Object?> get props => [status, assignedTo, priority];
 }
 
-class SearchLeads extends LeadsEvent {
+class SearchLeadsEvent extends LeadsEvent {
   final String query;
 
-  const SearchLeads({required this.query});
+  const SearchLeadsEvent({required this.query});
 
   @override
   List<Object> get props => [query];

@@ -62,7 +62,7 @@ class _CallsTabState extends State<CallsTab> {
                         onPressed: () {
                           context.read<TeleCrmBloc>().add(LoadTeleCrmData());
                         },
-                        text: 'Retry',
+                        label: 'Retry',
                       ),
                     ],
                   ),

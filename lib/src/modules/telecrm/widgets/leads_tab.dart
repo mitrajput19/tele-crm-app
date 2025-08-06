@@ -117,7 +117,7 @@ class _LeadsTabState extends State<LeadsTab> {
                         onPressed: () {
                           context.read<TeleCrmBloc>().add(LoadTeleCrmData());
                         },
-                        text: 'Retry',
+                        label: 'Retry',
                       ),
                     ],
                   ),

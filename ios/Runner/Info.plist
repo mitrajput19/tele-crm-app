@@ -45,5 +45,93 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Camera Permission -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to camera to take photos for your profile or documents.</string>
+
+	<!-- Photo Library Permission -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs access to photo library to select images for your profile or documents.</string>
+
+	<!-- Location Permission -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to provide location-based services.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs location access to provide location-based services.</string>
+
+	<!-- Microphone Permission -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access for voice recordings or calls.</string>
+
+	<!-- Contacts Permission -->
+	<key>NSContactsUsageDescription</key>
+	<string>This app needs access to contacts to help you connect with others.</string>
+
+	<!-- Calendar Permission -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>This app needs calendar access to schedule appointments and demos.</string>
+
+	<!-- Reminders Permission -->
+	<key>NSRemindersUsageDescription</key>
+	<string>This app needs access to reminders to help you manage tasks.</string>
+
+	<!-- Motion & Fitness Permission -->
+	<key>NSMotionUsageDescription</key>
+	<string>This app needs motion access to track your activity.</string>
+
+	<!-- Health Data Permission -->
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>This app needs health data access to track your wellness.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>This app needs health data access to share your wellness information.</string>
+
+	<!-- Face ID Permission -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app uses Face ID for secure authentication.</string>
+
+	<!-- Bluetooth Permission -->
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app needs Bluetooth access to connect with devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This app needs Bluetooth access to connect with peripheral devices.</string>
+
+	<!-- File Access Permission -->
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>This app needs access to documents folder to save and manage files.</string>
+
+	<!-- Siri Permission -->
+	<key>NSSiriUsageDescription</key>
+	<string>This app integrates with Siri for voice commands.</string>
+
+	<!-- Speech Recognition Permission -->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app needs speech recognition to convert voice to text.</string>
+
+	<!-- Apple Music Permission -->
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app needs access to Apple Music to play media.</string>
+
+	<!-- Background App Refresh -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>background-fetch</string>
+		<string>background-processing</string>
+		<string>remote-notification</string>
+	</array>
+
+	<!-- Push Notifications (handled automatically by Firebase) -->
+	
+	<!-- Network Extensions (for VPN apps) -->
+	<key>NSNetworkExtensionUsageDescription</key>
+	<string>This app needs network extension access for VPN functionality.</string>
+
+	<!-- Local Network Permission (iOS 14+) -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app needs local network access to discover and connect to devices on your local network.</string>
+
+	<!-- User Tracking (iOS 14.5+) -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This app would like to track your activity across other companies' apps and websites to provide personalized ads.</string>
+
 </dict>
 </plist>
