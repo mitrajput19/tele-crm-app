@@ -20,13 +20,13 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CommonIcon(
-                AppIcons.maintenance,
-                size: 76,
-                backgroundColor: AppColors.gray.withOpacity(.25),
-                padding: EdgeInsets.all(24),
-              ),
-              SizedBox(height: 24),
+              // CommonIcon(
+              //   AppIcons.maintenance,
+              //   size: 76,
+              //   backgroundColor: AppColors.gray.withOpacity(.25),
+              //   padding: EdgeInsets.all(24),
+              // ),
+              // SizedBox(height: 24),
               Text(
                 widget.appStatusData?.maintenanceTitle?.tr(context) ?? 'system_under_maintenance'.tr(context),
                 style: Theme.of(context).textTheme.tsMedium18,

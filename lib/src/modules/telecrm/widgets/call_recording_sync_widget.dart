@@ -221,7 +221,7 @@ class _CallRecordingSyncWidgetState extends State<CallRecordingSyncWidget> {
               child: CommonFilledButton(
                 onPressed: _isLoading ? null : _syncAllRecordings,
                 label: 'Sync All Recordings',
-                icon: Icons.cloud_upload,
+                icon: const Icon(Icons.cloud_upload),
               ),
             ),
             const SizedBox(width: 8),
@@ -233,7 +233,7 @@ class _CallRecordingSyncWidgetState extends State<CallRecordingSyncWidget> {
                         ? _stopAutoMonitoring 
                         : _startAutoMonitoring,
                 label: _isMonitoring ? 'Stop Auto-Sync' : 'Start Auto-Sync',
-                icon: _isMonitoring ? Icons.stop : Icons.play_arrow,
+                icon: _isMonitoring ? const Icon(Icons.stop) : const Icon(Icons.play_arrow),
                 backgroundColor: _isMonitoring ? Colors.red : null,
               ),
             ),

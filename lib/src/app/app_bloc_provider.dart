@@ -1,3 +1,5 @@
+import 'package:tele_crm_app/src/modules/leads/bloc/leads_bloc.dart';
+
 import 'app.dart';
 
 final List<BlocProvider> appProviders = [
@@ -10,8 +12,10 @@ final List<BlocProvider> appProviders = [
   BlocProvider<SnackbarBloc>(
     create: (context) => getIt<SnackbarBloc>(),
   ),
-  BlocProvider<DashboardBloc>(
-    create: (context) => getIt<DashboardBloc>(),
+
+   BlocProvider<LeadsBloc>(
+    create: (context) => getIt<LeadsBloc>(),
   ),
+
   
 ];

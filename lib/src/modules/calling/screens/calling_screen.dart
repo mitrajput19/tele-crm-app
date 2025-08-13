@@ -6,7 +6,6 @@ import '../../../app/app.dart';
 import '../../../core/core.dart';
 import '../../../domain/entities/call_request.dart';
 import '../../../domain/entities/call_log.dart';
-import '../../dashboard/bloc/dashboard_bloc.dart';
 
 class CallingScreen extends StatefulWidget {
   final CallRequest callRequest;
@@ -111,7 +110,7 @@ class _CallingScreenState extends State<CallingScreen> {
   }
 
   void _saveCallLog(String outcome, String notes, DateTime? followUpDate) {
-    final callLog = CallLog(
+    final callLog = CallLogModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       callRequestId: widget.callRequest.id,
       leadId: widget.callRequest.leadId,
@@ -129,7 +128,7 @@ class _CallingScreenState extends State<CallingScreen> {
       agentName: 'Current User', // Get from profile
     );
 
-    context.read<DashboardBloc>().add(CreateCallLog(callLog: callLog));
+    
     Navigator.of(context).pop();
   }
 

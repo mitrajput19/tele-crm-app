@@ -1,80 +1,60 @@
-import 'package:flutter_svg/svg.dart';
-
 import '../../app/app.dart';
 
 class CommonIcon extends StatelessWidget {
-  final dynamic icon;
-  final Color? color;
+  final IconData icon;
   final double? size;
+  final Color? color;
   final Color? backgroundColor;
   final EdgeInsets? padding;
   final EdgeInsets? margin;
-  final Border? border;
-  final VoidCallback? onTap;
-  final BoxShape shape;
+  final Function()? onTap;
+  final BorderRadius? borderRadius;
 
   const CommonIcon(
     this.icon, {
-    this.color,
+    super.key,
     this.size,
+    this.color,
     this.backgroundColor,
     this.padding,
     this.margin,
-    this.border,
-    this.shape = BoxShape.circle,
     this.onTap,
+    this.borderRadius,
   });
+
   @override
   Widget build(BuildContext context) {
+    Widget iconWidget = Icon(
+      icon,
+      size: size ?? 24,
+      color: color ?? Theme.of(context).iconTheme.color,
+    );
+
+    if (backgroundColor != null) {
+      iconWidget = Container(
+        padding: padding ?? EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: borderRadius ?? BorderRadius.circular(8),
+        ),
+        child: iconWidget,
+      );
+    }
+
+    if (onTap != null) {
+      iconWidget = InkWell(
+        onTap: () {
+          HapticHelper.trigger();
+          onTap?.call();
+        },
+        borderRadius: borderRadius ?? BorderRadius.circular(8),
+        child: iconWidget,
+      );
+    }
+
     return Container(
       margin: margin,
-      decoration: BoxDecoration(
-        shape: shape,
-        borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(4),
-        color: backgroundColor,
-        border: border,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          decoration: BoxDecoration(
-            shape: shape,
-            borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(4),
-          ),
-          child: InkWell(
-            borderRadius: shape == BoxShape.circle ? BorderRadius.circular(50) : BorderRadius.circular(4),
-            onTap: onTap == null
-                ? null
-                : () {
-                    HapticHelper.trigger();
-                    onTap?.call();
-                  },
-            child: Container(
-              padding: padding ?? EdgeInsets.all(2),
-              child: (icon is String)
-                  ? icon.endsWith('.svg')
-                      ? SvgPicture.asset(
-                          icon,
-                          height: size ?? 24,
-                          width: size ?? 24,
-                          colorFilter: color == null ? null : ColorFilter.mode(color!, BlendMode.srcIn),
-                        )
-                      : icon == ''
-                          ? Icon(Icons.error_outline_rounded, color: AppColors.gray)
-                          : Image.asset(
-                              icon,
-                              height: size,
-                              width: size,
-                            )
-                  : Icon(
-                      icon,
-                      color: color == null ? Theme.of(context).iconTheme.color : color,
-                      size: size,
-                    ),
-            ),
-          ),
-        ),
-      ),
+      child: iconWidget,
     );
   }
 }

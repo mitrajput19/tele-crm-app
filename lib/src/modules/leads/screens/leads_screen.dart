@@ -155,7 +155,7 @@ class _LeadsViewState extends State<LeadsView> {
 
   void _handleLeadTap(Demo lead) {
     if (_isSelectionMode) {
-      _toggleLeadSelection(lead.id);
+      _toggleLeadSelection(lead.id ?? '');
     } else {
       // Navigate to lead details
       _showLeadDetails(lead);
@@ -166,7 +166,7 @@ class _LeadsViewState extends State<LeadsView> {
     if (!_isSelectionMode) {
       setState(() {
         _isSelectionMode = true;
-        _selectedLeads.add(lead.id);
+        _selectedLeads.add(lead.id ?? '');
       });
     }
   }

@@ -1,5 +1,5 @@
 
-class CallLog {
+class CallLogModel {
   final String id;
   final String callRequestId;
   final String? leadId;
@@ -19,7 +19,7 @@ class CallLog {
   final String agentName;
   final Map<String, dynamic>? metadata;
 
-  CallLog({
+  CallLogModel({
     required this.id,
     required this.callRequestId,
     this.leadId,
@@ -40,7 +40,7 @@ class CallLog {
     this.metadata,
   });
 
-  factory CallLog.fromJson(Map<String, dynamic> json) => CallLog(
+  factory CallLogModel.fromJson(Map<String, dynamic> json) => CallLogModel(
     id: json['id'],
     callRequestId: json['call_request_id'],
     leadId: json['lead_id'],

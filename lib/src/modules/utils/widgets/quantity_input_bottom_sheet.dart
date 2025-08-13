@@ -36,7 +36,7 @@ class _QuantityInputBottomSheetState extends State<QuantityInputBottomSheet> {
         CommonTextField(
           focusNode: quantityFocusNode,
           hasLabel: false,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
           keyboardType: TextInputType.number,
           controller: quantityTextController,
         ),

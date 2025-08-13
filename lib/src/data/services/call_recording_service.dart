@@ -4,10 +4,6 @@ import 'dart:developer';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/entities/call_log.dart';
-import '../../domain/entities/demo_model.dart';
-import '../../domain/entities/lead_model.dart';
-import 'supabase_services.dart';
 import '../../app/app.dart';
 
 class CallRecordingService {
@@ -306,7 +302,7 @@ class CallRecordingService {
         final demos = await supabaseService.getLeads(limit: 100);
         for (final demo in demos) {
           if (demo.contactNo == phoneNumber || 
-              demo.alternateMobile == phoneNumber) {
+              demo.alternateContactNo == phoneNumber) {
             return {
               'name': demo.studentName,
               'phone': demo.contactNo,

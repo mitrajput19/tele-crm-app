@@ -12,6 +12,9 @@ class SupabaseService {
   factory SupabaseService() => _instance;
   SupabaseService._internal();
 
+  // Getter for client access
+  SupabaseClient get client => _client;
+
   // Auth Methods
   Future<User?> signIn(String email, String password) async {
     try {
@@ -477,7 +480,7 @@ class SupabaseService {
   }
 
   // Call Log Methods
-  Future<List<CallLog>> getCallLogs({
+  Future<List<CallLogModel>> getCallLogs({
     String? agentId,
     String? status,
     DateTime? startDate,
@@ -512,27 +515,27 @@ class SupabaseService {
 
       final response = await query;
       return (response as List)
-          .map((json) => CallLog.fromJson(json))
+          .map((json) => CallLogModel.fromJson(json))
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch call logs: $e');
     }
   }
 
-  Future<CallLog> createCallLog(CallLog callLog) async {
+  Future<CallLogModel> createCallLog(CallLogModel callLog) async {
     try {
       final response = await _client
           .from('call_logs')
           .insert(callLog.toJson())
           .select()
           .single();
-      return CallLog.fromJson(response);
+      return CallLogModel.fromJson(response);
     } catch (e) {
       throw Exception('Failed to create call log: $e');
     }
   }
 
-  Future<CallLog> updateCallLog(String id, Map<String, dynamic> updates) async {
+  Future<CallLogModel> updateCallLog(String id, Map<String, dynamic> updates) async {
     try {
       final response = await _client
           .from('call_logs')
@@ -540,7 +543,7 @@ class SupabaseService {
           .eq('id', id)
           .select()
           .single();
-      return CallLog.fromJson(response);
+      return CallLogModel.fromJson(response);
     } catch (e) {
       throw Exception('Failed to update call log: $e');
     }
@@ -578,6 +581,7 @@ class SupabaseService {
   // Lead/Demo Management Methods
   Future<Demo> createLead(Demo lead) async {
     try {
+      log('Creating lead: ${lead.toJson()}');
       final response = await _client
           .from('demos')
           .insert(lead.toJson())
@@ -838,7 +842,7 @@ class SupabaseService {
   }
 
   // Call Recording Methods
-  Future<List<CallLog>> getCallLogs({
+  Future<List<Map<String, dynamic>>> getCallRecordings({
     String? status,
     int limit = 20,
     int offset = 0,
@@ -850,17 +854,15 @@ class SupabaseService {
           .order('start_time', ascending: false)
           .range(offset, offset + limit - 1);
 
-      if (status != null) {
-        query = query.eq('call_status', status);
-      }
-
       final response = await query;
-      return (response as List)
-          .map((json) => CallLog.fromJson(json))
-          .toList();
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      throw Exception('Failed to fetch call logs: $e');
+      throw Exception('Failed to fetch call recordings: $e');
     }
+  }
+
+  Future<User?> getCurrentUser() async {
+    return currentUser;
   }
 
   Future<Map<String, dynamic>> createCallRecording(Map<String, dynamic> data) async {
@@ -887,7 +889,7 @@ class SupabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getCallRecordings({
+  Future<List<Map<String, dynamic>>> getCallRecordingsByCallerId({
     String? callerId,
     String? contactId,
     String? demoRequestId,
@@ -901,21 +903,7 @@ class SupabaseService {
           .select()
           .order('start_time', ascending: false);
 
-      if (callerId != null) {
-        query = query.eq('caller_id', callerId);
-      }
-      if (contactId != null) {
-        query = query.eq('contact_id', contactId);
-      }
-      if (demoRequestId != null) {
-        query = query.eq('demo_request_id', demoRequestId);
-      }
-      if (startDate != null) {
-        query = query.gte('start_time', startDate.toIso8601String());
-      }
-      if (endDate != null) {
-        query = query.lte('start_time', endDate.toIso8601String());
-      }
+    
 
       final response = await query.limit(limit);
       return List<Map<String, dynamic>>.from(response);

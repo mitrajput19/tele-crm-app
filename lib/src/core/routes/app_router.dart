@@ -64,7 +64,7 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.dashboard,
-        pageBuilder: defaultPageBuilder(const DashboardScreen()),
+        pageBuilder: defaultPageBuilder(const TeleCRMDashboard()),
       ),
 
       GoRoute(
@@ -102,6 +102,19 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.callRecording,
         pageBuilder: defaultPageBuilder(const CallRecordingScreen()),
+      ),
+
+      GoRoute(
+        path: AppRoutes.leads,
+        pageBuilder: defaultPageBuilder(const LeadsScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.teleCRM,
+        pageBuilder: defaultPageBuilder(const TeleCRMDashboard()),
+      ),
+      GoRoute(
+        path: AppRoutes.addLead,
+        pageBuilder: defaultPageBuilder(const AddLeadScreen()),
       ),
 
     ],

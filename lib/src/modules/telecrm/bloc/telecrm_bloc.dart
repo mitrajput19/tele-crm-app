@@ -58,7 +58,7 @@ class TeleCrmLoading extends TeleCrmState {}
 
 class TeleCrmLoaded extends TeleCrmState {
   final List<Demo> leads;
-  final List<CallLog> calls;
+  final List<CallLogModel> calls;
   final Map<String, dynamic> stats;
 
   const TeleCrmLoaded({

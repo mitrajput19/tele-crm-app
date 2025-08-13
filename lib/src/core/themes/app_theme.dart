@@ -6,7 +6,7 @@ class AppTheme {
 
   static final double cardBorderRadius = 16;
   static final double buttonBorderRadius = 50;
-  static final double textFieldBorderRadius = 50;
+  static final double textFieldBorderRadius = 12;
   static final double tabbarBorderRadius = 50;
 
   static final BorderRadius borderRadiusCircularCard = BorderRadius.circular(

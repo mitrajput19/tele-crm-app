@@ -71,7 +71,7 @@ class AppRoutes {
   static const String shoppingBagsList = '/stocks/shopping_bags_list';
   static const String shoppingBagQuotesList = '/stocks/shopping_bag_quotes_list';
   static const String stockQuoteDetails = '/stocks/stock_quote_details';
-  static const String dashboard = '/dashboard';
+  static const String dashboard = '/telecrm-main';
   static const String resetPassword = '/setting/reset_password';
   static const String attendanceReport = '/shift/attendance_report';
   static const String shiftSwapRequest = '/shift/shift_swap_request';
@@ -109,4 +109,8 @@ class AppRoutes {
   static const String myActivities = '/my-activities';
   static const String leaderboard = '/leaderboard';
   static const String callRecording = '/call-recording';
+
+  static const String leads = '/leads';
+  static const String teleCRM = '/telecrm';
+  static const String addLead = '/add-lead';
 }

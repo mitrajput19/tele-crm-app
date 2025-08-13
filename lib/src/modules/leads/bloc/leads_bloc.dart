@@ -37,11 +37,10 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
   Future<void> _onCreateLead(CreateLeadEvent event, Emitter<LeadsState> emit) async {
     try {
       final newLead = await _supabaseService.createLead(event.lead);
-      if (state is LeadsLoaded) {
-        final currentState = state as LeadsLoaded;
-        emit(currentState.copyWith(
-          leads: [newLead, ...currentState.leads],
-        ));
+      if(newLead != null) {
+        emit(CreatedLeadSuccess(lead: newLead));
+      } else {
+        emit(LeadsError(message: 'Failed to create lead'));
       }
     } catch (e) {
       emit(LeadsError(message: e.toString()));
@@ -111,7 +110,7 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
     try {
       final callRequest = CallRequest(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        leadId: event.lead.id,
+        leadId: event.lead.id ?? '',
         customerName: event.lead.studentName,
         phoneNumber: event.lead.contactNo ?? '',
         alternatePhone: event.lead.alternateContactNo ?? '',

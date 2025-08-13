@@ -121,6 +121,7 @@ class PermissionHandlerService {
       AppPermission.contacts,
       AppPermission.phone,
       AppPermission.systemAlertWindow,
+      AppPermission.manageExternalStorage
     ];
     
     final results = await checkPermissions(requiredPermissions);

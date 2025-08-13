@@ -4,7 +4,7 @@ import '../../../app/app.dart';
 import '../../../domain/entities/call_log.dart';
 
 class CallItemWidget extends StatelessWidget {
-  final CallLog call;
+  final CallLogModel call;
   final VoidCallback onTap;
   final VoidCallback onCallback;
 

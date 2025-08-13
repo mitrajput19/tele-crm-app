@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:tele_crm_app/src/modules/leads/bloc/leads_bloc.dart';
 
 import '../app/app.dart';
 
@@ -29,9 +30,9 @@ class DependencyInjection {
       () => AuthRepositoryImpl(apis: getIt<AuthApiServices>(), supabaseService: getIt<SupabaseService>()),
     );
 
-    getIt.registerLazySingleton<DashboardBloc>(
-      () => DashboardBloc(supabaseServices: getIt<SupabaseService>()),
-    );
+    
+
+
     getIt.registerLazySingleton<CallService>(
       () => CallService(),
     );
@@ -102,6 +103,10 @@ class DependencyInjection {
 
     getIt.registerLazySingleton<AppBloc>(
       () => AppBloc(),
+    );
+
+    getIt.registerLazySingleton<LeadsBloc>(
+      () => LeadsBloc(supabaseService: getIt<SupabaseService>()),
     );
 
     

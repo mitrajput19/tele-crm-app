@@ -128,7 +128,7 @@ class _ItemCounterTileState extends State<ItemCounterTile> {
 
   Widget _buildEditButton() {
     return CommonIcon(
-      border: Border.all(color: AppColors.gray.withOpacity(0.4)),
+  
       Icons.edit_rounded,
       size: 16,
       padding: EdgeInsets.all(4),

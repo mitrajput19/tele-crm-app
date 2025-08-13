@@ -84,18 +84,18 @@ class _CommonStartEndDatePickerState extends State<CommonStartEndDatePicker> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () => openDatePickerDialog(context),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: CommonIcon(
-                AppIcons.calendar,
-                padding: EdgeInsets.all(6),
-                color: AppColors.light,
-                backgroundColor: AppColors.secondary,
-              ),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () => openDatePickerDialog(context),
+          //   child: Container(
+          //     padding: EdgeInsets.symmetric(horizontal: 16),
+          //     child: CommonIcon(
+          //       AppIcons.calendar,
+          //       padding: EdgeInsets.all(6),
+          //       color: AppColors.light,
+          //       backgroundColor: AppColors.secondary,
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: GestureDetector(
               onTap: () => openDatePickerDialog(context, isStartDate: false),
