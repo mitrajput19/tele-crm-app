@@ -19,3 +19,4 @@ export 'tasks_api_services.dart';
 export 'supabase_services.dart';
 export 'permission_handler_services.dart';
 export 'call_services.dart';
+export 'device_info_service.dart';

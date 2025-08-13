@@ -50,73 +50,30 @@ class AppRouter {
         path: AppRoutes.splash,
         pageBuilder: defaultPageBuilder(const SplashScreen()),
       ),
-     GoRoute(
+      GoRoute(
         path: AppRoutes.login,
         pageBuilder: defaultPageBuilder(const LoginScreen()),
-      ),
-      GoRoute(
-        path: AppRoutes.attendance,
-        pageBuilder: defaultPageBuilder(const AttendanceScreen()),
-      ),
-      GoRoute(
-        path: AppRoutes.loginActivity,
-        pageBuilder: defaultPageBuilder(const LoginActivityScreen()),
       ),
       GoRoute(
         path: AppRoutes.dashboard,
         pageBuilder: defaultPageBuilder(const TeleCRMDashboard()),
       ),
-
-      GoRoute(
-        path: AppRoutes.signature,
-        pageBuilder: defaultPageBuilder(const SignatureScreen()),
-      ),
-
-
-
-      GoRoute(
-        path: AppRoutes.locationPermission,
-        pageBuilder: defaultPageBuilder(const LocationPermissionScreen()),
-      ),
-
-      GoRoute(
-        path: AppRoutes.maintenance,
-        pageBuilder: (context, state) {
-          return buildPageWithDefaultTransition(
-            context: context,
-            state: state,
-            child: MaintenanceScreen(
-              appStatusData: state.extra as RemoteConfigAppStatusData?,
-            ),
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.myActivities,
-        pageBuilder: defaultPageBuilder(const MyActivitiesScreen()),
-      ),
-      GoRoute(
-        path: AppRoutes.leaderboard,
-        pageBuilder: defaultPageBuilder(const LeaderboardScreen()),
-      ),
-      GoRoute(
-        path: AppRoutes.callRecording,
-        pageBuilder: defaultPageBuilder(const CallRecordingScreen()),
-      ),
-
       GoRoute(
         path: AppRoutes.leads,
         pageBuilder: defaultPageBuilder(const LeadsScreen()),
       ),
       GoRoute(
-        path: AppRoutes.teleCRM,
-        pageBuilder: defaultPageBuilder(const TeleCRMDashboard()),
-      ),
-      GoRoute(
         path: AppRoutes.addLead,
         pageBuilder: defaultPageBuilder(const AddLeadScreen()),
       ),
-
+      GoRoute(
+        path: AppRoutes.callRecording,
+        pageBuilder: defaultPageBuilder(const CallRecordingScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        pageBuilder: defaultPageBuilder(const SettingsScreen()),
+      ),
     ],
   );
 }

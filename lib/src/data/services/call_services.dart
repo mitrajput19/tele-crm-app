@@ -123,139 +123,96 @@ class CallService {
     return RegExp(r'^\+?\d{10,15}$').hasMatch(cleaned);
   }
 
-  /// Start recording (placeholder - implement with actual recording plugin)
-  Future<String?> startRecording() async {
-    try {
-      
-      // Return mock path for now - implement with actual recording plugin
-      return 'mock_recording_path_${DateTime.now().millisecondsSinceEpoch}.mp3';
-    } catch (e) {
-      
-      return null;
-    }
-  }
 
-  /// Stop recording (placeholder - implement with actual recording plugin)
-  Future<String?> stopRecording() async {
-    try {
-      
-      // Return mock path for now - implement with actual recording plugin
-      return 'mock_recording_path_${DateTime.now().millisecondsSinceEpoch}.mp3';
-    } catch (e) {
-      
-      return null;
-    }
-  }
 
-  /// End call (placeholder)
-  Future<void> endCall() async {
-    try {
-      
-      // Implement call ending logic if needed
-    } catch (e) {
-      
-    }
-  }
-
-  /// Sync all call recordings to Supabase storage
+  /// Sync call recordings (optimized for speed)
   Future<Map<String, dynamic>> syncCallRecordings() async {
     try {
-      // Clear processed recordings at the start of sync to allow fresh processing
       _processedRecordings.clear();
       
       final supabaseService = getIt<SupabaseService>();
       final currentUser = await supabaseService.getCurrentUser();
       
-      if (currentUser == null) {
-        throw Exception('User not authenticated');
+      if (currentUser == null) throw Exception('User not authenticated');
+
+      // Get recent call logs only (last 24 hours)
+      final yesterday = DateTime.now().subtract(Duration(hours: 24));
+      final allCallLogs = await _getDeviceCallLogs();
+      final recentCallLogs = allCallLogs.where((log) {
+        final timestamp = log['timestamp'] ?? 0;
+        return DateTime.fromMillisecondsSinceEpoch(timestamp).isAfter(yesterday);
+      }).take(20).toList(); // Limit to 20 most recent
+      
+      if (recentCallLogs.isEmpty) {
+        return {'uploaded': 0, 'failed': 0, 'total': 0};
       }
 
-      // Get all leads for phone number lookup
+      // Get leads and create phone map
       final leads = await supabaseService.getLeads();
       final phoneToLeadMap = <String, Demo>{};
-      
       for (final lead in leads) {
         if (lead.contactNo != null) {
           phoneToLeadMap[_cleanPhoneNumber(lead.contactNo!)] = lead;
         }
       }
-
-      // Get call logs from device
-      final callLogs = await _getDeviceCallLogs();
       
       int uploaded = 0;
       int failed = 0;
       
-      for (final callLog in callLogs) {
-        try {
-          final phoneNumber = callLog['number'] ?? '';
-          final contactName = callLog['name'] ?? callLog['cached_name'] ?? '';
-          
-          
-          // Try to find lead by phone number or contact name
-          Demo? lead;
-          String cleanPhone = '';
-          
-          // First try to match by phone number
-          if (phoneNumber != 'Unknown' && phoneNumber.isNotEmpty) {
-            cleanPhone = _cleanPhoneNumber(phoneNumber);
-            lead = phoneToLeadMap[cleanPhone];
+      // Process in batches of 3 to avoid overwhelming
+      const batchSize = 3;
+      for (int i = 0; i < recentCallLogs.length; i += batchSize) {
+        final batch = recentCallLogs.skip(i).take(batchSize);
+        
+        await Future.wait(batch.map((callLog) async {
+          try {
+            final phoneNumber = callLog['number'] ?? '';
+            final contactName = callLog['name'] ?? '';
             
-          }
-          
-          // If no lead found by phone, try matching by contact name
-          if (lead == null && contactName.isNotEmpty) {
-            for (final leadEntry in phoneToLeadMap.entries) {
-              final leadData = leadEntry.value;
-              if (leadData.studentName?.toLowerCase().contains(contactName.toLowerCase()) == true ||
-                  contactName.toLowerCase().contains(leadData.studentName?.toLowerCase() ?? '')) {
-                lead = leadData;
-                cleanPhone = leadEntry.key;
-                
-                break;
+            Demo? lead;
+            String cleanPhone = '';
+            
+            if (phoneNumber != 'Unknown' && phoneNumber.isNotEmpty) {
+              cleanPhone = _cleanPhoneNumber(phoneNumber);
+              lead = phoneToLeadMap[cleanPhone];
+            }
+            
+            if (lead == null && contactName.isNotEmpty) {
+              for (final entry in phoneToLeadMap.entries) {
+                if (entry.value.studentName?.toLowerCase().contains(contactName.toLowerCase()) == true) {
+                  lead = entry.value;
+                  cleanPhone = entry.key;
+                  break;
+                }
               }
             }
-          }
-          
-          if (lead == null) {
             
+            if (lead == null) {
+              failed++;
+              return;
+            }
+            
+            final studentName = (lead.studentName ?? 'Unknown').replaceAll(RegExp(r'[^\w\s]'), '');
+            final timestamp = DateTime.fromMillisecondsSinceEpoch(callLog['timestamp'] ?? 0);
+            final fileName = '${studentName.replaceAll(' ', '_')}_${cleanPhone}_${timestamp.millisecondsSinceEpoch}';
+            final folderPath = '${currentUser.id}/$fileName';
+            
+            callLog['number'] = lead.contactNo ?? cleanPhone;
+            
+            await _uploadCallRecording(callLog, folderPath, lead, currentUser.id!);
+            uploaded++;
+          } catch (e) {
             failed++;
-            continue;
           }
-          
-          final studentName = (lead.studentName ?? 'Unknown').replaceAll(RegExp(r'[^\w\s]'), '');
-          final timestamp = DateTime.fromMillisecondsSinceEpoch(callLog['timestamp'] ?? 0);
-          
-          // Create filename: StudentName_PhoneNumber_Timestamp (extension will be determined from actual file)
-          final fileName = '${studentName.replaceAll(' ', '_')}_${cleanPhone}_${timestamp.millisecondsSinceEpoch}';
-          final folderPath = '${currentUser.id}/$fileName';
-          
-          
-          
-          // Update callLog with actual phone number from lead if found
-          if (lead != null && lead.contactNo != null) {
-            callLog['number'] = lead.contactNo!;
-            cleanPhone = _cleanPhoneNumber(lead.contactNo!);
-          } else {
-            callLog['number'] = cleanPhone.isNotEmpty ? cleanPhone : phoneNumber;
-          }
-          
-          // Upload recording to Supabase storage
-          await _uploadCallRecording(callLog, folderPath, lead, currentUser.id!);
-          uploaded++;
-        } catch (e) {
-          
-          failed++;
-        }
+        }));
       }
       
       return {
         'uploaded': uploaded,
         'failed': failed,
-        'total': callLogs.length,
+        'total': recentCallLogs.length,
       };
     } catch (e) {
-      
       throw Exception('Failed to sync recordings: $e');
     }
   }
@@ -290,90 +247,7 @@ class CallService {
     }
   }
   
-  /// Scan recording directories for call recording files
-  Future<List<File>> _scanRecordingDirectories() async {
-    final List<File> recordingFiles = [];
-    
-    // Check storage permissions first
-    if (!await Permission.storage.isGranted) {
-      await Permission.storage.request();
-    }
-    if (!await Permission.manageExternalStorage.isGranted) {
-      await Permission.manageExternalStorage.request();
-    }
-    
-    final recordingPaths = [
-      '/storage/emulated/0/Call recordings',
-      '/storage/emulated/0/Recordings/Call recordings',
-      '/storage/emulated/0/Recordings/Call',
-      '/storage/emulated/0/MIUI/sound_recorder/call_rec',
-      '/storage/emulated/0/PhoneRecord',
-      '/storage/emulated/0/CallRecordings',
-    ];
-    
-    for (final path in recordingPaths) {
-      try {
-  
-        final dir = Directory(path);
-     
-        if (await dir.exists()) {
-          final files = await dir.list(recursive: true, followLinks: false).toList();
-          
-          
-          for (final file in files) {
-            if (file is File) {
-              final fileName = file.path.split('/').last.toLowerCase();
-              final validExtensions = ['mp3', 'm4a', 'wav', 'aac', 'amr', '3gp'];
-              
-              if (validExtensions.any((ext) => fileName.endsWith('.$ext'))) {
-                
-                recordingFiles.add(file);
-              }
-            }
-          }
-        }
-      } catch (e) {
-        
-        continue;
-      }
-    }
-    
-    return recordingFiles;
-  }
-  
-  /// Extract phone number from filename
-  String? _extractPhoneFromFileName(String filePath) {
-    final fileName = filePath.split('/').last;
-    
-    
-    // Try different phone number patterns
-    final patterns = [
-      RegExp(r'(\+?\d{10,15})'), // Standard phone format
-      RegExp(r'_(\d{6,15})_'), // Numbers between underscores
-      RegExp(r'\s(\d{10,15})\s'), // Numbers between spaces
-      RegExp(r'(\d{10,15})'), // Any sequence of 10+ digits
-    ];
-    
-    for (final pattern in patterns) {
-      final match = pattern.firstMatch(fileName);
-      if (match != null) {
-        final phone = match.group(1)!;
-        
-        return phone;
-      }
-    }
-    
-    // If no phone found, use the contact name from filename
-    final nameMatch = RegExp(r'Call recording (.+?)_').firstMatch(fileName);
-    if (nameMatch != null) {
-      final contactName = nameMatch.group(1)!;
-      
-      return contactName; // Return name to match against leads
-    }
-    
-    
-    return null;
-  }
+
 
   /// Upload individual call recording
   Future<void> _uploadCallRecording(
@@ -475,58 +349,70 @@ class CallService {
         return null;
       }
       
-      // Common call recording directories on Android
-      final recordingPaths = [
+      // Get user-defined recording path or use common paths as fallback
+      final userSettings = await getIt<SupabaseService>().getUserSettings();
+      final recordingPaths = <String>[];
+      
+      // Add user-defined path first if available
+      if (userSettings?.callRecordingPath != null && userSettings!.callRecordingPath!.isNotEmpty) {
+        recordingPaths.add(userSettings.callRecordingPath!);
+      }
+      
+      // Add common paths as fallback
+      recordingPaths.addAll([
         '/storage/emulated/0/Call recordings',
         '/storage/emulated/0/Recordings/Call recordings',
         '/storage/emulated/0/MIUI/sound_recorder/call_rec',
         '/storage/emulated/0/PhoneRecord',
         '/storage/emulated/0/CallRecordings',
         '/storage/emulated/0/Recordings/Call',
-      ];
+      ]);
       
       for (final path in recordingPaths) {
         try {
-          
           final dir = Directory(path);
           if (await dir.exists()) {
-            final files = await dir.list(recursive: false, followLinks: false).toList();
+            // Get only recent files (last 24 hours) to speed up search
+            final yesterday = DateTime.now().subtract(Duration(hours: 24));
+            final files = await dir.list(recursive: false, followLinks: false)
+                .where((file) {
+                  if (file is File) {
+                    try {
+                      final stat = file.statSync();
+                      return stat.modified.isAfter(yesterday);
+                    } catch (e) {
+                      return true; // Include if we can't check date
+                    }
+                  }
+                  return false;
+                })
+                .take(50) // Limit to 50 files max
+                .toList();
             
             for (final file in files) {
               if (file is File) {
                 try {
                   final fileName = file.path.split('/').last.toLowerCase();
-                  final cleanFileName = fileName.replaceAll(RegExp(r'[^\w\d.]'), '');
                   
+                  if (_processedRecordings.contains(file.path)) continue;
                   
-                  
-                  // Check if file matches phone number and approximate timestamp
                   if (fileName.contains(phoneNumber.toLowerCase()) || 
-                      cleanFileName.contains(phoneNumber) || fileName.contains(contactName.toString().toLowerCase()) || 
+                      fileName.contains(contactName.toString().toLowerCase()) || 
                       _isRecordingFileMatch(fileName, phoneNumber, timestamp)) {
                     
-                    // Check if this recording has already been processed
-                    if (_processedRecordings.contains(file.path)) {
-                      continue;
-                    }
-                    
-                    // Verify file is readable and not empty
                     final fileSize = await file.length();
                     if (fileSize > 0) {
-                      // Mark as processed to prevent duplicate processing
                       _processedRecordings.add(file.path);
                       return file;
                     }
                   }
                 } catch (fileError) {
-                  
                   continue;
                 }
               }
             }
           }
         } catch (dirError) {
-          
           continue;
         }
       }
@@ -572,68 +458,3 @@ class CallService {
   }
 }
 
-// Call state management
-enum CallState {
-  idle,
-  dialing,
-  ringing,
-  connected,
-  ended,
-  failed
-}
-
-class CallManager {
-  static final CallManager _instance = CallManager._internal();
-  factory CallManager() => _instance;
-  CallManager._internal();
-
-  CallState _currentState = CallState.idle;
-  String? _currentCallId;
-  DateTime? _callStartTime;
-
-  CallState get currentState => _currentState;
-  String? get currentCallId => _currentCallId;
-  DateTime? get callStartTime => _callStartTime;
-
-  Future<bool> initiateCall(CallRequest callRequest) async {
-    try {
-      _currentState = CallState.dialing;
-      _currentCallId = callRequest.id;
-      _callStartTime = DateTime.now();
-
-      // Make the actual call
-      bool success = await getIt<CallService>().makeDirectCall(callRequest.phoneNumber);
-      
-      if (success) {
-        _currentState = CallState.ringing;
-        return true;
-      } else {
-        _currentState = CallState.failed;
-        return false;
-      }
-    } catch (e) {
-      _currentState = CallState.failed;
-      print('Error initiating call: $e');
-      return false;
-    }
-  }
-
-  void markCallAsConnected() {
-    if (_currentState == CallState.ringing) {
-      _currentState = CallState.connected;
-    }
-  }
-
-  void endCall() {
-    _currentState = CallState.ended;
-    _currentCallId = null;
-    _callStartTime = null;
-  }
-
-  Duration? getCallDuration() {
-    if (_callStartTime != null && _currentState == CallState.connected) {
-      return DateTime.now().difference(_callStartTime!);
-    }
-    return null;
-  }
-}

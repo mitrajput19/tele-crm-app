@@ -911,4 +911,58 @@ class SupabaseService {
       throw Exception('Failed to fetch call recordings: $e');
     }
   }
+
+  // User Settings Methods
+  Future<UserSettings?> getUserSettings() async {
+    final userId = currentUserId;
+    if (userId == null) return null;
+
+    try {
+      final response = await _client
+          .from('user_settings')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
+      
+      return response != null ? UserSettings.fromJson(response) : null;
+    } catch (e) {
+      throw Exception('Failed to get user settings: $e');
+    }
+  }
+
+  Future<UserSettings> updateUserSettings({
+    String? callRecordingPath,
+    String? deviceModel,
+    String? deviceBrand,
+    String? osVersion,
+    String? appVersion,
+  }) async {
+    final userId = currentUserId;
+    if (userId == null) throw Exception('User not authenticated');
+
+    try {
+      final updates = {
+        'user_id': userId,
+        'call_recording_path': callRecordingPath,
+        'device_model': deviceModel,
+        'device_brand': deviceBrand,
+        'os_version': osVersion,
+        'app_version': appVersion,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      // Remove null values
+      updates.removeWhere((key, value) => value == null);
+
+      final response = await _client
+          .from('user_settings')
+          .upsert(updates)
+          .select()
+          .single();
+      
+      return UserSettings.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to update user settings: $e');
+    }
+  }
 }

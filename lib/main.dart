@@ -19,6 +19,13 @@ await Supabase.initialize(
     anonKey: AppConstants.supabaseAnonKey,
   );
 
+  // Update device info on app start
+  try {
+    await getIt<DeviceInfoService>().updateUserDeviceInfo();
+  } catch (e) {
+    // Handle silently
+  }
+
   
   runApp(
     MultiBlocProvider(

@@ -23,6 +23,16 @@ class _TeleCRMDashboardState extends State<TeleCRMDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(_titles[_selectedIndex]),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.sync),
+            onPressed: _syncCallRecordings,
+          ),
+        ],
+      ),
+      drawer: AppDrawer(),
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,

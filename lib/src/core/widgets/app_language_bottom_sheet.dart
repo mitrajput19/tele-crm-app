@@ -32,7 +32,7 @@ class _AppLanguageBottomSheetState extends State<AppLanguageBottomSheet> {
     return CommonBottomSheet(
       hasSearch: false,
       hasBottomSpacing: false,
-      label: AppTrKeys.selectDefaultLanguage.tr(context),
+     
       children: [
         BlocConsumer<AppBloc, AppState>(
           bloc: appBloc,

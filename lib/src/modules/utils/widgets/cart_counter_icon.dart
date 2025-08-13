@@ -13,7 +13,7 @@ class CartCounterIcon extends StatelessWidget {
             icon: Icon(
               Icons.shopping_cart_rounded,
             ),
-            onPressed: () => context.push(AppRoutes.shoppingBagsList),
+            onPressed: (){},
           ),
           Positioned(
             right: 0,

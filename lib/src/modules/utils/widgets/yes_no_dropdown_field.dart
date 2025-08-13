@@ -17,21 +17,21 @@ class YesNoDropdownField extends StatelessWidget {
   String _getDisplayValue(BuildContext context) {
     final value = dataValue.toString();
     if (value == '1' || value == 1) {
-      return AppTrKeys.yes.tr(context);
+      return '';
     }
-    return AppTrKeys.no.tr(context);
+    return'';
   }
 
   dynamic _getDataValue(String displayValue, BuildContext context) {
-    if (displayValue == AppTrKeys.yes.tr(context)) return dataValue is int ? 1 : '1';
+    if (displayValue == '') return dataValue is int ? 1 : '1';
     return dataValue is int ? 0 : '0';
   }
 
   @override
   Widget build(BuildContext context) {
     final items = [
-      AppTrKeys.yes.tr(context),
-      AppTrKeys.no.tr(context),
+      '',
+     '',
     ];
 
     return CommonDropdownField<String>(

@@ -27,8 +27,8 @@ class LocationServices {
         permissionGranted = await location.requestPermission();
         debugPrint('requestLocationPermission denied : requestPermission $permissionGranted');
         if (permissionGranted == PermissionStatus.denied || permissionGranted == PermissionStatus.deniedForever) {
-          debugPrint('requestLocationPermission Step 1 : $isErrorScreen : ${AppRoutes.locationPermission}');
-          context.go(AppRoutes.locationPermission);
+          // debugPrint('requestLocationPermission Step 1 : $isErrorScreen : ${AppRoutes.locationPermission}');
+          // context.go(AppRoutes.locationPermission);
           return;
         }
         if (!serviceEnabled) {
@@ -44,7 +44,7 @@ class LocationServices {
       if (permissionGranted == PermissionStatus.deniedForever) {
         debugPrint('requestLocationPermission deniedForever : requestPermission $permissionGranted');
         debugPrint('requestLocationPermission Step 2 $isErrorScreen : ${AppRoutes.splash}');
-        context.go(AppRoutes.locationPermission);
+        // context.go(AppRoutes.locationPermission);
       }
 
       // Proceed only if permission is granted

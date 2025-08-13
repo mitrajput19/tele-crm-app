@@ -29,17 +29,17 @@ class MainMenuAppBarTitle extends StatelessWidget {
       onTap: !fromHome
           ? null
           : () {
-              BottomSheetHelper.showCommonBottomSheet(
-                context,
-                child: CommonBottomSheet(
-                  label: AppTrKeys.mainMenu.tr(context),
-                  useMaxHeight: true,
-                  padding: EdgeInsets.all(16),
-                  children: [
+              // BottomSheetHelper.showCommonBottomSheet(
+              //   context,
+              //   child: CommonBottomSheet(
+              //     label: AppTrKeys.mainMenu.tr(context),
+              //     useMaxHeight: true,
+              //     padding: EdgeInsets.all(16),
+              //     children: [
                 
-                  ],
-                ),
-              );
+              //     ],
+              //   ),
+              // );
             },
     );
   }
