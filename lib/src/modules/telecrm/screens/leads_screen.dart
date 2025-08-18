@@ -11,6 +11,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
   List<Demo> leads = [];
   List<Demo> filteredLeads = [];
   bool isLoading = true;
+  bool isDateFilterApplied = false;
   
   // Search and filter controllers
   final TextEditingController searchController = TextEditingController();
@@ -32,13 +33,19 @@ class _LeadsScreenState extends State<LeadsScreen> {
   Future<void> _loadLeads() async {
     try {
       final supabaseService = getIt<SupabaseService>();
-      final startDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-      final endDate = startDate.add(Duration(days: 1));
       
-      final loadedLeads = await supabaseService.getLeads(
-        startDate: startDate,
-        endDate: endDate,
-      );
+      final List<Demo> loadedLeads;
+      if (isDateFilterApplied) {
+        final startDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+        final endDate = startDate.add(Duration(days: 1));
+        loadedLeads = await supabaseService.getLeads(
+          startDate: startDate,
+          endDate: endDate,
+        );
+      } else {
+        loadedLeads = await supabaseService.getLeads();
+      }
+      
       setState(() {
         leads = loadedLeads;
         filteredLeads = loadedLeads;
@@ -72,10 +79,19 @@ class _LeadsScreenState extends State<LeadsScreen> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        isDateFilterApplied = true;
         isLoading = true;
       });
       _loadLeads();
     }
+  }
+
+  void _clearDateFilter() {
+    setState(() {
+      isDateFilterApplied = false;
+      isLoading = true;
+    });
+    _loadLeads();
   }
 
   Future<void> _callLead(Demo lead) async {
@@ -133,17 +149,45 @@ class _LeadsScreenState extends State<LeadsScreen> {
                   ),
                 ),
                 SizedBox(width: 8),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                if (isDateFilterApplied) ...[
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          DateFormat('MMM dd').format(selectedDate),
+                          style: Theme.of(context).textTheme.tsMedium12,
+                        ),
+                        SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: _clearDateFilter,
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Text(
-                    DateFormat('MMM dd').format(selectedDate),
-                    style: Theme.of(context).textTheme.tsMedium12,
+                ] else ...[
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'All Leads',
+                      style: Theme.of(context).textTheme.tsMedium12,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -156,7 +200,9 @@ class _LeadsScreenState extends State<LeadsScreen> {
                         child: Text(
                           searchController.text.isNotEmpty 
                               ? 'No leads found matching "${searchController.text}"'
-                              : 'No leads found for ${DateFormat('MMM dd, yyyy').format(selectedDate)}',
+                              : isDateFilterApplied 
+                                  ? 'No leads found for ${DateFormat('MMM dd, yyyy').format(selectedDate)}'
+                                  : 'No leads found',
                           style: Theme.of(context).textTheme.tsGrayRegular16,
                           textAlign: TextAlign.center,
                         ),
@@ -168,6 +214,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
                           final lead = filteredLeads[index];
                     return CommonCard(
                       margin: EdgeInsets.only(bottom: 12),
+                      onTap: () => context.push('${AppRoutes.leadDetails}/${lead.id}', extra: lead),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

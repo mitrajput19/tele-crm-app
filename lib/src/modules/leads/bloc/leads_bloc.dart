@@ -39,6 +39,8 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
       final newLead = await _supabaseService.createLead(event.lead);
       if(newLead != null) {
         emit(CreatedLeadSuccess(lead: newLead));
+        // Reload the leads list to include the new lead
+        add(LoadLeadsEvent());
       } else {
         emit(LeadsError(message: 'Failed to create lead'));
       }
@@ -49,14 +51,10 @@ class LeadsBloc extends Bloc<LeadsEvent, LeadsState> {
 
   Future<void> _onUpdateLead(UpdateLeadEvent event, Emitter<LeadsState> emit) async {
     try {
-      final updatedLead = await _supabaseService.updateLead(event.leadId, event.updates);
-      if (state is LeadsLoaded) {
-        final currentState = state as LeadsLoaded;
-        final updatedLeads = currentState.leads.map((lead) {
-          return lead.id == event.leadId ? updatedLead : lead;
-        }).toList();
-        emit(currentState.copyWith(leads: updatedLeads));
-      }
+      final updatedLead = await _supabaseService.updateLead(event.leadId, event.lead.toJson());
+      emit(UpdatedLeadSuccess(lead: updatedLead));
+      // Reload the leads list to reflect the update
+      add(LoadLeadsEvent());
     } catch (e) {
       emit(LeadsError(message: e.toString()));
     }

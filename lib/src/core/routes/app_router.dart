@@ -1,5 +1,7 @@
 import '../../app/app.dart';
-import '../../modules/telecrm/telecrm.dart';
+import '../../modules/leads/bloc/lead_details_bloc.dart';
+import '../../modules/leads/leads.dart' hide LeadsScreen;
+import '../../modules/modules.dart' hide LeadsScreen;
 
 final myRouteObserver = MyRouteObserver();
 
@@ -64,11 +66,36 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.addLead,
-        pageBuilder: defaultPageBuilder(const AddLeadScreen()),
+        pageBuilder: (context, state) {
+          final leadId = state.uri.queryParameters['leadId'];
+          return MaterialPage(
+            key: state.pageKey,
+            name: state.name,
+            child: AddLeadScreen(leadId: leadId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '${AppRoutes.leadDetails}/:leadId',
+        pageBuilder: (context, state) {
+          final leadId = state.pathParameters['leadId']!;
+          return MaterialPage(
+            key: state.pageKey,
+            name: state.name,
+            child: BlocProvider(
+              create: (context) => LeadDetailsBloc(),
+              child: LeadDetailsScreen(leadId: leadId),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.callRecording,
         pageBuilder: defaultPageBuilder(const CallRecordingScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.callHistory,
+        pageBuilder: defaultPageBuilder(const CallHistoryScreen()),
       ),
       GoRoute(
         path: AppRoutes.settings,

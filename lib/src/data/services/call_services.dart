@@ -2,13 +2,13 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:call_log/call_log.dart';
+import 'package:call_log/call_log.dart' hide CallType;
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
-import '../../app/app.dart';
+import '../../app/app.dart' hide CallLogEntry;
 import '../../domain/entities/call_request.dart';
 import '../../domain/entities/demo_model.dart';
 import 'supabase_services.dart';
@@ -125,6 +125,75 @@ class CallService {
 
 
 
+  /// Sync call logs from device to database
+  Future<Map<String, dynamic>> syncCallLogs() async {
+    try {
+      final supabaseService = getIt<SupabaseService>();
+      final currentUser = await supabaseService.getCurrentUser();
+      log('Syncing call logs for user: ${currentUser?.id}');
+      
+      if (currentUser == null) throw Exception('User not authenticated');
+
+      // Get call logs from device
+      final callLogs = await getDeviceCallLogs();
+      log('Loaded ${callLogs.length} call logs from device');
+      
+      if (callLogs.isEmpty) {
+        return {'synced': 0, 'failed': 0, 'total': 0};
+      }
+
+      // Get leads to match phone numbers
+      final leads = await supabaseService.getLeads();
+      final phoneToLeadMap = <String, Demo>{};
+      for (final lead in leads) {
+        if (lead.contactNo != null) {
+          phoneToLeadMap[_cleanPhoneNumber(lead.contactNo!)] = lead;
+        }
+      }
+      
+      int synced = 0;
+      int failed = 0;
+      
+      for (final callLog in callLogs) {
+        try {
+          final phoneNumber = callLog['number'] ?? '';
+          final cleanPhone = _cleanPhoneNumber(phoneNumber);
+          final lead = phoneToLeadMap[cleanPhone];
+          
+          // Create call log entry
+          final callLogData = {
+            'demo_id': lead?.id,
+            'phone_number': phoneNumber,
+            'contact_name': callLog['name'] ?? '',
+            'call_type': callLog['type'],
+            'call_duration': callLog['duration'],
+            'call_date': DateTime.fromMillisecondsSinceEpoch(callLog['timestamp']).toIso8601String(),
+            'caller_id': currentUser.id,
+            'lead_name': lead?.studentName,
+            'synced_at': DateTime.now().toIso8601String(),
+          };
+          
+          // Save to database
+          await supabaseService.client
+              .from('call_logs')
+              .insert(callLogData);
+          
+          synced++;
+        } catch (e) {
+          failed++;
+        }
+      }
+      
+      return {
+        'synced': synced,
+        'failed': failed,
+        'total': callLogs.length,
+      };
+    } catch (e) {
+      throw Exception('Failed to sync call logs: $e');
+    }
+  }
+
   /// Sync call recordings (optimized for speed)
   Future<Map<String, dynamic>> syncCallRecordings() async {
     try {
@@ -137,7 +206,7 @@ class CallService {
 
       // Get recent call logs only (last 24 hours)
       final yesterday = DateTime.now().subtract(Duration(hours: 24));
-      final allCallLogs = await _getDeviceCallLogs();
+      final allCallLogs = await getDeviceCallLogs();
       final recentCallLogs = allCallLogs.where((log) {
         final timestamp = log['timestamp'] ?? 0;
         return DateTime.fromMillisecondsSinceEpoch(timestamp).isAfter(yesterday);
@@ -218,7 +287,7 @@ class CallService {
   }
 
   /// Get call logs from device using call_log package
-  Future<List<Map<String, dynamic>>> _getDeviceCallLogs() async {
+  Future<List<Map<String, dynamic>>> getDeviceCallLogs() async {
     try {
       // Check phone permission
       if (!await Permission.phone.isGranted) {
@@ -232,13 +301,14 @@ class CallService {
 
       // Get call logs from device
       final Iterable<CallLogEntry> entries = await CallLog.get();
+      log('Loaded ${entries.length} call logs from device');
       
 
       return entries.map((entry) => {
         'number': entry.number ?? 'Unknown',
         'timestamp': entry.timestamp ?? DateTime.now().millisecondsSinceEpoch,
         'duration': entry.duration ?? 0,
-        'type': entry.callType == CallType.outgoing ? 'outgoing' : 'incoming',
+        'type': entry.callType,
         'name': entry.name ?? '',
       }).toList();
     } catch (e) {
@@ -304,8 +374,9 @@ class CallService {
           .from('call-recordings')
           .getPublicUrl(correctedStoragePath);
       
-      // Create call recording metadata
+      // Create call recording metadata with demo_id
       final recordingData = {
+        'demo_id': lead?.id,
         'phone_number': callLog['number'],
         'duration_seconds': callLog['duration'] ?? 0,
         'start_time': DateTime.fromMillisecondsSinceEpoch(callLog['timestamp'] ?? 0).toIso8601String(),
@@ -455,6 +526,40 @@ class CallService {
       return int.tryParse(match.group(1)!);
     }
     return null;
+  }
+
+  /// Get call logs for a specific lead
+  Future<List<Map<String, dynamic>>> getCallLogsForLead(int leadId) async {
+    try {
+      final supabaseService = getIt<SupabaseService>();
+      
+      final response = await supabaseService.client
+          .from('call_logs')
+          .select('*')
+          .eq('demo_id', leadId)
+          .order('call_date', ascending: false);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw Exception('Failed to get call logs: $e');
+    }
+  }
+
+  /// Get all call logs
+  Future<List<Map<String, dynamic>>> getAllCallLogs() async {
+    try {
+      final supabaseService = getIt<SupabaseService>();
+      
+      final response = await supabaseService.client
+          .from('call_logs')
+          .select('*')
+          .order('call_date', ascending: false)
+          .limit(100);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw Exception('Failed to get call logs: $e');
+    }
   }
 }
 

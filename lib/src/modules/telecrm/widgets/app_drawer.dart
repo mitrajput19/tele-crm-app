@@ -100,6 +100,14 @@ class AppDrawer extends StatelessWidget {
                     context.push(AppRoutes.callRecording);
                   },
                 ),
+                _DrawerItem(
+                  icon: Icons.history,
+                  title: 'Call History',
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.callHistory);
+                  },
+                ),
 
                 CommonDivider(),
                 _DrawerItem(
@@ -311,14 +319,28 @@ class _RecordingPathDialogState extends State<RecordingPathDialog> {
         ],
       ),
       actions: [
-        CommonTextButton(
-          onPressed: () => Navigator.pop(context),
-          label: 'Cancel',
-        ),
-        CommonButton(
-          label: 'Save',
-          isLoading: _isLoading,
-          onPressed: _savePath,
+        Padding(
+          padding: EdgeInsets.only(bottom: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: CommonTextButton(
+                  onPressed: () => Navigator.pop(context),
+                  label: 'Cancel',
+                ),
+              ),
+              SizedBox(width: 12),
+              Flexible(
+                child: CommonButton(
+                  label: 'Save',
+                  backgroundColor: Theme.of(context).primaryColor,
+                  isLoading: _isLoading,
+                  onPressed: _savePath,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

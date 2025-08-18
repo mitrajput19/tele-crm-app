@@ -17,5 +17,9 @@ final List<BlocProvider> appProviders = [
     create: (context) => getIt<LeadsBloc>(),
   ),
 
+  BlocProvider<CallHistoryBloc>(
+    create: (context) => getIt<CallHistoryBloc>(),
+  ),
+
   
 ];

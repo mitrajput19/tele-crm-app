@@ -1,86 +1,12 @@
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../data/services/supabase_services.dart';
 import '../../../domain/entities/demo_model.dart';
 import '../../../domain/entities/call_log.dart';
 
-// Events
-abstract class TeleCrmEvent extends Equatable {
-  const TeleCrmEvent();
+part 'telecrm_event.dart';
+part 'telecrm_state.dart';
 
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadTeleCrmData extends TeleCrmEvent {}
-
-class LoadLeads extends TeleCrmEvent {
-  final String? status;
-  final String? assignedTo;
-
-  const LoadLeads({this.status, this.assignedTo});
-
-  @override
-  List<Object?> get props => [status, assignedTo];
-}
-
-class LoadCalls extends TeleCrmEvent {
-  final String? status;
-  final DateTime? date;
-
-  const LoadCalls({this.status, this.date});
-
-  @override
-  List<Object?> get props => [status, date];
-}
-
-class SearchLeads extends TeleCrmEvent {
-  final String query;
-
-  const SearchLeads({required this.query});
-
-  @override
-  List<Object?> get props => [query];
-}
-
-// States
-abstract class TeleCrmState extends Equatable {
-  const TeleCrmState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class TeleCrmInitial extends TeleCrmState {}
-
-class TeleCrmLoading extends TeleCrmState {}
-
-class TeleCrmLoaded extends TeleCrmState {
-  final List<Demo> leads;
-  final List<CallLogModel> calls;
-  final Map<String, dynamic> stats;
-
-  const TeleCrmLoaded({
-    required this.leads,
-    required this.calls,
-    required this.stats,
-  });
-
-  @override
-  List<Object?> get props => [leads, calls, stats];
-}
-
-class TeleCrmError extends TeleCrmState {
-  final String message;
-
-  const TeleCrmError({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-// Bloc
 class TeleCrmBloc extends Bloc<TeleCrmEvent, TeleCrmState> {
   final SupabaseService _supabaseService;
 

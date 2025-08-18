@@ -24,6 +24,7 @@ class Demo {
   final double? finalizedAmount;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? email;
 
   Demo({
      this.id,
@@ -51,6 +52,7 @@ class Demo {
     this.finalizedAmount,
     required this.createdAt,
     required this.updatedAt,
+    this.email,
   });
 
   factory Demo.fromJson(Map<String, dynamic> json) => Demo(
@@ -58,6 +60,7 @@ class Demo {
     studentName: json['student_name'],
     board: json['board'],
     standard: json['standard'],
+    email: json['email'],
     contactNo: json['contact_no'],
     alternateContactNo: json['alternate_contact_no'],
     demoDate: DateTime.parse(json['demo_date']),
@@ -94,6 +97,7 @@ class Demo {
     'created_by': createdBy,
     'school_name': schoolName,
     'city': city,
+    'email': email,
     'address': address,
     'source_of_lead': sourceOfLead,
     'demo_performed_by': demoPerformedBy,

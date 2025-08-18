@@ -504,15 +504,6 @@ class SupabaseService {
         query = query.lte('start_time', endDate.toIso8601String());
       }
 
-      // query = query.order('start_time', ascending: false);
-
-      // if (limit != null) {
-      //   query = query.limit(limit);
-      // }
-      // if (offset != null) {
-      //   query = query.range(offset, offset + (limit ?? 10) - 1);
-      // }
-
       final response = await query;
       return (response as List)
           .map((json) => CallLogModel.fromJson(json))
@@ -547,6 +538,73 @@ class SupabaseService {
     } catch (e) {
       throw Exception('Failed to update call log: $e');
     }
+  }
+
+  Future<void> syncCallLogsToDatabase(List<CallLogEntry> callLogs, List<Demo> leads) async {
+    try {
+      final profile = await getCurrentProfile();
+      if (profile == null) throw Exception('No current profile found');
+
+      // Get existing call logs to prevent duplicates
+      final existingLogs = await _client
+          .from('call_logs')
+          .select('phone_number, start_time')
+          .eq('agent_id', profile.userId);
+          log('Existing logs: $existingLogs');
+
+      final existingKeys = existingLogs.map((log) => 
+          '${log['phone_number']}_${log['start_time']}').toSet();
+
+          log('Existing keys: $existingKeys');
+
+      // Create lead lookup map
+      final leadMap = <String, Demo>{};
+      for (final lead in leads) {
+        if (lead.contactNo != null) {
+          leadMap[_normalizePhoneNumber(lead.contactNo!)] = lead;
+        }
+        if (lead.alternateContactNo != null) {
+          leadMap[_normalizePhoneNumber(lead.alternateContactNo!)] = lead;
+        }
+      }
+
+      final logsToInsert = <Map<String, dynamic>>[];
+      
+      for (final callLog in callLogs) {
+        final normalizedNumber = _normalizePhoneNumber(callLog.number ?? '');
+        final lead = leadMap[normalizedNumber];
+        
+        if (lead != null) {
+          final key = '${callLog.number}_${callLog.timestamp}';
+          
+          if (!existingKeys.contains(key)) {
+            logsToInsert.add({
+              'lead_id': lead.id,
+              'customer_name': callLog.name ?? lead.studentName ?? 'Unknown',
+              'phone_number': callLog.number,
+              'call_type': callLog.callType,
+              'status': 'completed',
+              'start_time': callLog.timestamp != null ? DateTime.fromMillisecondsSinceEpoch(callLog.timestamp!).toIso8601String() : DateTime.now().toIso8601String(),
+              'end_time': callLog.timestamp != null ? DateTime.fromMillisecondsSinceEpoch(callLog.timestamp!).add(Duration(seconds: callLog.duration ?? 0)).toIso8601String() : null,
+              'duration': callLog.duration,
+              'agent_id': profile.userId,
+              'agent_name': profile.fullName ?? 'Unknown Agent',
+            });
+          }
+        }
+      }
+
+      if (logsToInsert.isNotEmpty) {
+        await _client.from('call_logs').insert(logsToInsert);
+      }
+    } catch (e) {
+      throw Exception('Failed to sync call logs: $e');
+    }
+  }
+
+  String _normalizePhoneNumber(String phoneNumber) {
+    final digitsOnly = phoneNumber.replaceAll(RegExp(r'\D'), '');
+    return digitsOnly.length >= 10 ? digitsOnly.substring(digitsOnly.length - 10) : digitsOnly;
   }
 
   // Real-time subscriptions
@@ -841,7 +899,7 @@ class SupabaseService {
     }
   }
 
-  // Call Recording Methods
+  // Call Recording Methods (now using call_logs table)
   Future<List<Map<String, dynamic>>> getCallRecordings({
     String? status,
     int limit = 20,
@@ -849,8 +907,9 @@ class SupabaseService {
   }) async {
     try {
       var query = _client
-          .from('call_recordings')
+          .from('call_logs')
           .select()
+          .not('recording_url', 'is', null)
           .order('start_time', ascending: false)
           .range(offset, offset + limit - 1);
 
@@ -867,9 +926,28 @@ class SupabaseService {
 
   Future<Map<String, dynamic>> createCallRecording(Map<String, dynamic> data) async {
     try {
+      final recordingData = {
+        'lead_id': data['demo_id'] ?? data['lead_id'],
+        'customer_name': data['customer_name'] ?? 'Unknown',
+        'phone_number': data['phone_number'] ?? '',
+        'call_type': data['call_type'] ?? 'outgoing',
+        'status': data['status'] ?? 'completed',
+        'start_time': data['start_time'] ?? DateTime.now().toIso8601String(),
+        'end_time': data['end_time'],
+        'duration': data['duration'],
+        'recording_url': data['recording_url'],
+        'notes': data['notes'],
+        'outcome': data['outcome'],
+        'next_action': data['next_action'],
+        'follow_up_date': data['follow_up_date'],
+        'agent_id': data['agent_id'] ?? currentUserId,
+        'agent_name': data['agent_name'] ?? 'Unknown Agent',
+        'metadata': data['metadata'] ?? {},
+      };
+      
       final response = await _client
-          .from('call_recordings')
-          .insert(data)
+          .from('call_logs')
+          .insert(recordingData)
           .select()
           .single();
       return response;
@@ -881,7 +959,7 @@ class SupabaseService {
   Future<void> updateCallRecording(String id, Map<String, dynamic> data) async {
     try {
       await _client
-          .from('call_recordings')
+          .from('call_logs')
           .update(data)
           .eq('id', id);
     } catch (e) {
@@ -898,14 +976,26 @@ class SupabaseService {
     int limit = 50,
   }) async {
     try {
-      var query = _client
-          .from('call_recordings')
+      dynamic query = _client
+          .from('call_logs')
           .select()
-          .order('start_time', ascending: false);
+          .not('recording_url', 'is', null);
 
-    
+      if (callerId != null) {
+        query = query.eq('phone_number', callerId);
+      }
+      if (demoRequestId != null) {
+        query = query.eq('lead_id', demoRequestId);
+      }
+      if (startDate != null) {
+        query = query.gte('start_time', startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.lte('start_time', endDate.toIso8601String());
+      }
 
-      final response = await query.limit(limit);
+      query = query.order('start_time', ascending: false).limit(limit);
+      final response = await query;
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       throw Exception('Failed to fetch call recordings: $e');

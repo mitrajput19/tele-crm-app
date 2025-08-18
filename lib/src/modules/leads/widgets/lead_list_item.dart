@@ -23,120 +23,119 @@ class LeadListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CommonCard(
+      padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(bottom: 12),
-      child: CommonCard(
-        padding: EdgeInsets.zero,
-        child: Material(
-          color: isSelected ? AppColors.lightPrimary.withOpacity(0.1) : Colors.transparent,
+      onTap: onTap,
+      child: Material(
+        color: isSelected ? AppColors.lightPrimary.withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: onTap,
-            onLongPress: onLongPress,
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      if (isSelectionMode)
-                        Container(
-                          margin: const EdgeInsets.only(right: 12),
-                          child: Icon(
-                            isSelected 
-                                ? Icons.check_circle 
-                                : Icons.radio_button_unchecked,
-                            color: isSelected 
-                                ? AppColors.lightPrimary 
-                                : Colors.grey,
-                          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (isSelectionMode)
+                      Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        child: Icon(
+                          isSelected 
+                              ? Icons.check_circle 
+                              : Icons.radio_button_unchecked,
+                          color: isSelected 
+                              ? AppColors.lightPrimary 
+                              : Colors.grey,
                         ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              lead.studentName,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                      ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lead.studentName,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 4),
-                            if (lead.contactNo != null)
-                              Row(
-                                children: [
-                                  const Icon(Icons.phone, size: 16, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    lead.contactNo!,
+                          ),
+                          const SizedBox(height: 4),
+                          if (lead.contactNo != null)
+                            Row(
+                              children: [
+                                const Icon(Icons.phone, size: 16, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Text(
+                                  lead.contactNo!,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          if (lead.alternateContactNo != null) ...[
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                const Icon(Icons.email, size: 16, color: Colors.grey),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    lead.alternateContactNo!,
                                     style: Theme.of(context).textTheme.bodyMedium,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ],
-                              ),
-                            if (lead.alternateContactNo != null) ...[
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  const Icon(Icons.email, size: 16, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      lead.alternateContactNo!,
-                                      style: Theme.of(context).textTheme.bodyMedium,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ],
-                        ),
+                        ],
                       ),
-                      if (!isSelectionMode) ...[
-                        IconButton(
-                          icon:  Icon(Icons.call, color: AppColors.lightPrimary),
-                          onPressed: onCallPressed,
-                          tooltip: 'Create Call',
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.grey),
-                          onPressed: onEditPressed,
-                          tooltip: 'Edit Lead',
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildStatusChip(lead.status),
-                      const SizedBox(width: 8),
-                      _buildPriorityChip(lead.sourceOfLead ?? 'medium'),
-                      const Spacer(),
-                      Text(
-                        _formatDate(lead.createdAt),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                        ),
+                    ),
+                    if (!isSelectionMode) ...[
+                      IconButton(
+                        icon:  Icon(Icons.call, color: AppColors.lightPrimary),
+                        onPressed: onCallPressed,
+                        tooltip: 'Create Call',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.grey),
+                        onPressed: onEditPressed,
+                        tooltip: 'Edit Lead',
                       ),
                     ],
-                  ),
-                  if (lead.notes != null && lead.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildStatusChip(lead.status),
+                    const SizedBox(width: 8),
+                    _buildPriorityChip(lead.sourceOfLead ?? 'medium'),
+                    const Spacer(),
                     Text(
-                      lead.notes!,
+                      _formatDate(lead.createdAt),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                ),
+                if (lead.notes != null && lead.notes!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    lead.notes!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ),

@@ -37,9 +37,16 @@ class DependencyInjection {
       () => LeadsBloc(supabaseService: getIt<SupabaseService>()),
     );
 
+    getIt.registerFactory<CallHistoryBloc>(
+      () => CallHistoryBloc(supabaseService: getIt<SupabaseService>()),
+    );
+    
+
     getIt.registerLazySingleton<DeviceInfoService>(
       () => DeviceInfoService(),
     );
+
+
     
   }
 }

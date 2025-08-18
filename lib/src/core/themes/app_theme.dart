@@ -57,7 +57,7 @@ class AppTheme {
       ),
       drawerTheme: DrawerThemeData(
         backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-        scrimColor: isDarkMode ? AppColors.dark : AppColors.light,
+        
         elevation: 0,
       ),
       cardTheme: CardThemeData(

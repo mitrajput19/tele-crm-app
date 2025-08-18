@@ -3,6 +3,7 @@
 import '../../../app/app.dart';
 import '../bloc/leads_bloc.dart';
 import '../widgets/widgets.dart';
+import 'package:go_router/go_router.dart';
 
 class LeadsScreen extends StatelessWidget {
   const LeadsScreen({super.key});
@@ -209,7 +210,7 @@ class _LeadsViewState extends State<LeadsView> {
   }
 
   void _showLeadDetails(Demo lead) {
-    // Navigate to lead details screen
+    context.push('${AppRoutes.leadDetails}/${lead.id}');
   }
 
   void _showCreateLeadDialog() {

@@ -2,7 +2,9 @@ import '../../../app/app.dart';
 import '../../leads/bloc/leads_bloc.dart';
 
 class AddLeadScreen extends StatefulWidget {
-  const AddLeadScreen({super.key});
+  final String? leadId;
+  
+  const AddLeadScreen({super.key, this.leadId});
 
   @override
   State<AddLeadScreen> createState() => _AddLeadScreenState();
@@ -25,6 +27,8 @@ class _AddLeadScreenState extends State<AddLeadScreen> {
   String? _selectedStandard;
   String? _selectedSource;
   String? _selectedDemoPerformedBy;
+  Demo? _existingLead;
+  bool get _isEditMode => widget.leadId != null;
 
   final List<Map<String, String>> _statusOptions = [
     {"value": "demo_confirmed", "label": "Confirmed"},
@@ -75,6 +79,50 @@ class _AddLeadScreenState extends State<AddLeadScreen> {
   ];
  
   @override
+  void initState() {
+    super.initState();
+    if (_isEditMode) {
+      _loadExistingLead();
+    }
+  }
+
+  void _loadExistingLead() async {
+    try {
+      final response = await getIt<SupabaseService>().client
+          .from('demos')
+          .select()
+          .eq('id', widget.leadId!)
+          .single();
+      
+      _existingLead = Demo.fromJson(response);
+      _populateFields();
+    } catch (e) {
+      showSnackbarBloc('Failed to load lead data', SnackbarType.danger);
+    }
+  }
+
+  void _populateFields() {
+    if (_existingLead != null) {
+      setState(() {
+        _nameController.text = _existingLead!.studentName;
+        _contactController.text = _existingLead!.contactNo ?? '';
+        _alternateContactController.text = _existingLead!.alternateContactNo ?? '';
+        _emailController.text = _existingLead!.email ?? '';
+        _addressController.text = _existingLead!.address ?? '';
+        _notesController.text = _existingLead!.notes ?? '';
+        _schoolNameController.text = _existingLead!.schoolName ?? '';
+        _cityController.text = _existingLead!.city ?? '';
+        _quoteAmountController.text = _existingLead!.quoteAmount?.toString() ?? '';
+        _selectedStatus = _existingLead!.status;
+        _selectedBoard = _existingLead!.board;
+        _selectedStandard = _existingLead!.standard;
+        _selectedSource = _existingLead!.sourceOfLead;
+        _selectedDemoPerformedBy = _existingLead!.demoPerformedBy;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _contactController.dispose();
@@ -82,44 +130,72 @@ class _AddLeadScreenState extends State<AddLeadScreen> {
     _emailController.dispose();
     _addressController.dispose();
     _notesController.dispose();
+    _schoolNameController.dispose();
+    _cityController.dispose();
+    _quoteAmountController.dispose();
     super.dispose();
   }
 
   void _saveLead() {
     if (_formKey.currentState!.validate()) {
-      context.read<LeadsBloc>().add(
-        CreateLeadEvent(
-          lead: Demo.fromJson({
-            'student_name': _nameController.text,
-            'board': _selectedBoard,
-            'standard': _selectedStandard,
-            'contact_no': _contactController.text,
-            'alternate_contact_no': _alternateContactController.text,
-            'demo_date': DateTime.now().toIso8601String(),
-            'assigned_to': getIt<SupabaseService>().currentUserId,
-            'status': _selectedStatus,
-            'notes': _notesController.text,
-            'created_by': getIt<SupabaseService>().currentUserId,
-            'school_name': _schoolNameController.text,
-            'city': _cityController.text,
-            'address': _addressController.text,
-            'source_of_lead': _selectedSource,
-            'demo_performed_by': _selectedDemoPerformedBy,
-            'quote_amount':   
-                _quoteAmountController.text.isNotEmpty
-                    ? double.tryParse(_quoteAmountController.text)
-                    : null,
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          }),
-        ),
-      );
-      context.showSnackBar(
-        'Lead saved successfully!',
-        type: SnackbarType.success,
-      );
+      if (_isEditMode) {
+        context.read<LeadsBloc>().add(
+          UpdateLeadEvent(
+            leadId: widget.leadId!,
+            lead: Demo.fromJson({
+              'id': widget.leadId,
+              'student_name': _nameController.text,
+              'board': _selectedBoard,
+              'standard': _selectedStandard,
+              'demo_date': _existingLead?.demoDate.toIso8601String() ?? DateTime.now().toIso8601String(),
+              'contact_no': _contactController.text,
+              'alternate_contact_no': _alternateContactController.text,
+              'email': _emailController.text,
+              'status': _selectedStatus,
+              'notes': _notesController.text,
+              'school_name': _schoolNameController.text,
+              'city': _cityController.text,
+              'address': _addressController.text,
+              'source_of_lead': _selectedSource,
+              'demo_performed_by': _selectedDemoPerformedBy,
+              'quote_amount': _quoteAmountController.text.isNotEmpty
+                  ? double.tryParse(_quoteAmountController.text)
+                  : null,
+              'updated_at': DateTime.now().toIso8601String(),
+              'created_at': _existingLead?.createdAt.toIso8601String(),
+            }),
+          ),
+        );
+      } else {
+        context.read<LeadsBloc>().add(
+          CreateLeadEvent(
+            lead: Demo.fromJson({
+              'student_name': _nameController.text,
+              'board': _selectedBoard,
+              'standard': _selectedStandard,
+              'contact_no': _contactController.text,
+              'alternate_contact_no': _alternateContactController.text,
+              'email': _emailController.text,
+              'demo_date': DateTime.now().toIso8601String(),
+              'assigned_to': getIt<SupabaseService>().currentUserId,
+              'status': _selectedStatus,
+              'notes': _notesController.text,
+              'created_by': getIt<SupabaseService>().currentUserId,
+              'school_name': _schoolNameController.text,
+              'city': _cityController.text,
+              'address': _addressController.text,
+              'source_of_lead': _selectedSource,
+              'demo_performed_by': _selectedDemoPerformedBy,
+              'quote_amount': _quoteAmountController.text.isNotEmpty
+                  ? double.tryParse(_quoteAmountController.text)
+                  : null,
+              'created_at': DateTime.now().toIso8601String(),
+              'updated_at': DateTime.now().toIso8601String(),
+            }),
+          ),
+        );
+      }
       context.pop();
-      context.read<LeadsBloc>().add(LoadLeadsEvent());
     }
   }
 
@@ -127,7 +203,7 @@ class _AddLeadScreenState extends State<AddLeadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Lead'),
+        title: Text(_isEditMode ? 'Edit Lead' : 'Add New Lead'),
         actions: [
           TextButton(
             onPressed: _saveLead,
@@ -141,6 +217,9 @@ class _AddLeadScreenState extends State<AddLeadScreen> {
             context.showSnackBar(state.message, type: SnackbarType.danger);
           } else if (state is CreatedLeadSuccess) {
             context.showSnackBar('Lead created successfully!', type: SnackbarType.success);
+            context.pop();
+          } else if (state is UpdatedLeadSuccess) {
+            context.showSnackBar('Lead updated successfully!', type: SnackbarType.success);
             context.pop();
           }
         },

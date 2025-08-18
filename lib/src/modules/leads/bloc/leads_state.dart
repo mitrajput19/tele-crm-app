@@ -21,6 +21,15 @@ class CreatedLeadSuccess extends LeadsState {
   List<Object> get props => [lead];
 }
 
+class UpdatedLeadSuccess extends LeadsState {
+  final Demo lead;
+
+  const UpdatedLeadSuccess({required this.lead});
+
+  @override
+  List<Object> get props => [lead];
+}
+
 class LeadsLoaded extends LeadsState {
   final List<Demo> leads;
   final List<Demo>? filteredLeads;

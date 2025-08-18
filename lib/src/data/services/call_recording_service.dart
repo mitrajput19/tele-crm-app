@@ -209,10 +209,10 @@ class CallRecordingService {
           .from('call-recordings')
           .getPublicUrl(storagePath);
 
-      // Save call recording record to database
+      // Save call recording record to database with demo_id
       await getIt<SupabaseService>().createCallRecording({
+        'demo_id': clientInfo['demo_id'],
         'contact_id': clientInfo['contact_id'],
-        'demo_request_id': clientInfo['demo_id'],
         'caller_id': userUuid,
         'phone_number': phoneNumber ?? clientInfo['phone'],
         'call_type': 'outbound',

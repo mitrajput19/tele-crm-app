@@ -83,3 +83,6 @@ export 'crm_task_model.dart';
 export 'demo_model.dart';
 export 'profile_model.dart';
 export 'contact_model.dart';
+export 'audit_log.dart';
+export 'call_recording.dart';
+export 'lead_model.dart';

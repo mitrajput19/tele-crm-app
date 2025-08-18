@@ -21,15 +21,15 @@ class CreateLeadEvent extends LeadsEvent {
 
 class UpdateLeadEvent extends LeadsEvent {
   final String leadId;
-  final Map<String, dynamic> updates;
+  final Demo lead;
 
   const UpdateLeadEvent({
     required this.leadId,
-    required this.updates,
+    required this.lead,
   });
 
   @override
-  List<Object> get props => [leadId, updates];
+  List<Object> get props => [leadId, lead];
 }
 
 class DeleteLeadEvent extends LeadsEvent {
