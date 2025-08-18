@@ -60,6 +60,12 @@ class AppTheme {
         scrimColor: isDarkMode ? AppColors.dark : AppColors.light,
         elevation: 0,
       ),
+      cardTheme: CardThemeData(
+        color: isDarkMode ? AppColors.darkCardBackground : AppColors.lightCardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(cardBorderRadius),
+        ),
+      ),
       timePickerTheme: TimePickerThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(

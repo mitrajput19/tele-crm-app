@@ -941,8 +941,10 @@ class SupabaseService {
     if (userId == null) throw Exception('User not authenticated');
 
     try {
+      // First check if settings exist
+      final existing = await getUserSettings();
+      
       final updates = {
-        'user_id': userId,
         'call_recording_path': callRecordingPath,
         'device_model': deviceModel,
         'device_brand': deviceBrand,
@@ -954,11 +956,25 @@ class SupabaseService {
       // Remove null values
       updates.removeWhere((key, value) => value == null);
 
-      final response = await _client
-          .from('user_settings')
-          .upsert(updates)
-          .select()
-          .single();
+      late final Map<String, dynamic> response;
+      
+      if (existing != null) {
+        // Update existing record
+        response = await _client
+            .from('user_settings')
+            .update(updates)
+            .eq('user_id', userId)
+            .select()
+            .single();
+      } else {
+        // Create new record
+        updates['user_id'] = userId;
+        response = await _client
+            .from('user_settings')
+            .insert(updates)
+            .select()
+            .single();
+      }
       
       return UserSettings.fromJson(response);
     } catch (e) {

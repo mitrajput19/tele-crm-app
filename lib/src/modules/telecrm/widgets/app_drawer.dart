@@ -351,8 +351,10 @@ class _RecordingPathDialogState extends State<RecordingPathDialog> {
       Navigator.pop(context);
       showSnackbarBloc('Recording path updated successfully', SnackbarType.success);
     } catch (e) {
+      log(e.toString(), name: 'RecordingPathDialog');
       showSnackbarBloc('Failed to update path', SnackbarType.danger);
     } finally {
+      
       setState(() => _isLoading = false);
     }
   }
