@@ -8,6 +8,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Theme.of(context).drawerTheme.backgroundColor,
       child: Column(
         children: [
           // Header
@@ -181,22 +182,35 @@ class AppDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('About TeleCRM'),
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(
+          'About TeleCRM',
+          style: Theme.of(context).textTheme.tsSemiBold18,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Version: 1.0.0'),
+            Text(
+              'Version: 1.0.0',
+              style: Theme.of(context).textTheme.tsRegular14,
+            ),
             SizedBox(height: 8),
-            Text('A comprehensive CRM solution for telecalling teams.'),
+            Text(
+              'A comprehensive CRM solution for telecalling teams.',
+              style: Theme.of(context).textTheme.tsRegular14,
+            ),
             SizedBox(height: 8),
-            Text('© 2024 Home Revise'),
+            Text(
+              '© 2024 Home Revise',
+              style: Theme.of(context).textTheme.tsRegular14,
+            ),
           ],
         ),
         actions: [
-          TextButton(
+          CommonTextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
+            label: 'Close',
           ),
         ],
       ),
@@ -218,7 +232,7 @@ class _DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.lightPrimary),
+      leading: Icon(icon, color: Theme.of(context).iconTheme.color),
       title: Text(
         title,
         style: Theme.of(context).textTheme.tsMedium14,
@@ -257,7 +271,11 @@ class _RecordingPathDialogState extends State<RecordingPathDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Set Call Recording Path'),
+      backgroundColor: Theme.of(context).cardColor,
+      title: Text(
+        'Set Call Recording Path',
+        style: Theme.of(context).textTheme.tsSemiBold18,
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -293,9 +311,9 @@ class _RecordingPathDialogState extends State<RecordingPathDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        CommonTextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancel'),
+          label: 'Cancel',
         ),
         CommonButton(
           label: 'Save',

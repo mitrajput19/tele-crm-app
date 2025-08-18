@@ -1,4 +1,6 @@
 
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../app/app.dart';
 import '../widgets/call_recording_sync_widget.dart';
@@ -12,6 +14,62 @@ class CallRecordingScreen extends StatefulWidget {
 
 class _CallRecordingScreenState extends State<CallRecordingScreen> {
   String? _selectedFolder;
+  List<File> localRecordings = [];
+  bool isLoadingRecordings = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentPath();
+  }
+
+  Future<void> _loadCurrentPath() async {
+    try {
+      final settings = await getIt<SupabaseService>().getUserSettings();
+      if (settings?.callRecordingPath != null) {
+        setState(() {
+          _selectedFolder = settings!.callRecordingPath!;
+        });
+        _loadLocalRecordings();
+      }
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _loadLocalRecordings() async {
+    if (_selectedFolder == null) return;
+    
+    setState(() {
+      isLoadingRecordings = true;
+    });
+    
+    try {
+      final directory = Directory(_selectedFolder!);
+      if (await directory.exists()) {
+        final files = await directory
+            .list()
+            .where((file) => file is File && _isAudioFile(file.path))
+            .cast<File>()
+            .toList();
+        
+        setState(() {
+          localRecordings = files;
+          isLoadingRecordings = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoadingRecordings = false;
+      });
+      showSnackbarBloc('Error loading recordings: $e', SnackbarType.danger);
+    }
+  }
+
+  bool _isAudioFile(String filePath) {
+    final extension = filePath.split('.').last.toLowerCase();
+    return ['mp3', 'wav', 'm4a', 'aac', 'amr', '3gp'].contains(extension);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,40 +136,100 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
             const SizedBox(height: 24),
             // Folder selection area
             Container(
-              height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey[300]!),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    _selectedFolder != null 
-                        ? Icons.folder 
-                        : Icons.folder_outlined,
-                    size: 80,
-                    color: _selectedFolder != null 
-                        ? Colors.blue 
-                        : Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _selectedFolder ?? 'Auto-detected call recordings folder',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: _selectedFolder != null 
-                          ? Colors.blue 
-                          : Colors.grey[600],
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Icon(
+                          _selectedFolder != null 
+                              ? Icons.folder 
+                              : Icons.folder_outlined,
+                          size: 60,
+                          color: _selectedFolder != null 
+                              ? Colors.blue 
+                              : Colors.grey[400],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _selectedFolder ?? 'Auto-detected call recordings folder',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: _selectedFolder != null 
+                                ? Colors.blue 
+                                : Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 16),
+                        CommonButton(
+                          onPressed: _selectFolder,
+                          label: 'Change folder',
+                          height: 36,
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 24),
-                  CommonFilledButton(
-                    onPressed: _selectFolder,
-                    label: 'Change folder',
-                  ),
+                  if (_selectedFolder != null) ...[
+                    const Divider(height: 1),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Local Recordings (${localRecordings.length})',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const Spacer(),
+                              if (isLoadingRecordings)
+                                const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              else
+                                IconButton(
+                                  onPressed: _loadLocalRecordings,
+                                  icon: const Icon(Icons.refresh, size: 18),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          if (localRecordings.isEmpty && !isLoadingRecordings)
+                            const Text(
+                              'No recordings found in this folder',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            )
+                          else
+                            ...localRecordings.take(3).map((file) => _buildRecordingItem(file)),
+                          if (localRecordings.length > 3)
+                            TextButton(
+                              onPressed: _showAllRecordings,
+                              child: Text('View all ${localRecordings.length} recordings'),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -205,24 +323,88 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
     );
   }
 
+  Widget _buildRecordingItem(File file) {
+    final fileName = file.path.split('/').last;
+    final fileStat = file.statSync();
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.audiotrack, size: 16, color: Colors.blue),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  fileName,
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '${(fileStat.size / 1024 / 1024).toStringAsFixed(1)} MB • ${DateFormat('MMM dd').format(fileStat.modified)}',
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _selectFolder() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Recording Folder'),
-        content: const Text(
-          'The app automatically detects call recordings from common locations on your device. '
-          'If recordings are not being detected, ensure:\n\n'
-          '• Call recording is enabled in phone settings\n'
-          '• Storage permissions are granted\n'
-          '• Recordings are saved in a standard location'
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      builder: (context) => _RecordingPathDialog(
+        onPathChanged: (newPath) {
+          setState(() {
+            _selectedFolder = newPath;
+          });
+          _loadLocalRecordings();
+        },
+      ),
+    );
+  }
+
+  void _showAllRecordings() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: double.maxFinite,
+          height: 400,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'Local Recordings',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: localRecordings.length,
+                  itemBuilder: (context, index) {
+                    final file = localRecordings[index];
+                    return _buildRecordingItem(file);
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -269,5 +451,127 @@ class _CallRecordingScreenState extends State<CallRecordingScreen> {
         ],
       ),
     );
+  }
+}
+
+class _RecordingPathDialog extends StatefulWidget {
+  final Function(String)? onPathChanged;
+  
+  const _RecordingPathDialog({this.onPathChanged});
+  
+  @override
+  _RecordingPathDialogState createState() => _RecordingPathDialogState();
+}
+
+class _RecordingPathDialogState extends State<_RecordingPathDialog> {
+  final TextEditingController _pathController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentPath();
+  }
+
+  void _loadCurrentPath() async {
+    try {
+      final settings = await getIt<SupabaseService>().getUserSettings();
+      if (settings?.callRecordingPath != null) {
+        _pathController.text = settings!.callRecordingPath!;
+      }
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Set Call Recording Path'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Enter the path where your device stores call recordings:',
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: CommonTextField(
+                  controller: _pathController,
+                  label: 'Recording Path',
+                  hintText: '/storage/emulated/0/Call recordings',
+                  maxLines: 2,
+                ),
+              ),
+              const SizedBox(width: 8),
+              CommonButton(
+                label: 'Browse',
+                height: 40,
+                width: 80,
+                onPressed: _selectFolder,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap Browse to select folder or enter path manually',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        CommonButton(
+          label: 'Save',
+          isLoading: _isLoading,
+          onPressed: _savePath,
+        ),
+      ],
+    );
+  }
+
+  void _selectFolder() async {
+    try {
+      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      if (selectedDirectory != null) {
+        _pathController.text = selectedDirectory;
+      }
+    } catch (e) {
+      showSnackbarBloc('Failed to select folder', SnackbarType.danger);
+    }
+  }
+
+  void _savePath() async {
+    if (_pathController.text.trim().isEmpty) {
+      showSnackbarBloc('Please enter a valid path', SnackbarType.warning);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await getIt<SupabaseService>().updateUserSettings(
+        callRecordingPath: _pathController.text.trim(),
+      );
+      
+      Navigator.pop(context);
+      widget.onPathChanged?.call(_pathController.text.trim());
+      showSnackbarBloc('Recording path updated successfully', SnackbarType.success);
+    } catch (e) {
+      showSnackbarBloc('Failed to update path', SnackbarType.danger);
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _pathController.dispose();
+    super.dispose();
   }
 }

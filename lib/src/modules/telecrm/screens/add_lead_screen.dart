@@ -73,7 +73,7 @@ class _AddLeadScreenState extends State<AddLeadScreen> {
     {"value": "External Trainer", "label": "External Trainer"},
     {"value": "Others", "label": "Others"},
   ];
-
+ 
   @override
   void dispose() {
     _nameController.dispose();
